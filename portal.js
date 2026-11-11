@@ -12,7 +12,7 @@
  function el(tag,cl,text){const x=document.createElement(tag);if(cl)x.className=cl;if(text!=null)x.textContent=text;return x;}
 
 
- function proposalLink(q){if(currentUser.role!=='consultant'&&!q.commercial?.version)return document.createDocumentFragment();const link=el('a','proposal-link',currentUser.role==='consultant'?'Preparar proposta →':'Ver proposta v'+q.commercial.version+' →');link.href='/assets/proposal/index.html?quote='+encodeURIComponent(q.id);return link;}
+ function proposalLink(q){if(currentUser.role!=='consultant'&&!q.commercial?.version)return document.createDocumentFragment();const link=el('a','proposal-link',currentUser.role==='consultant'?'Preparar proposta ':'Ver proposta v'+q.commercial.version+' ');link.href='/assets/proposal/index.html?quote='+encodeURIComponent(q.id);return link;}
  function operationEditor(d,refresh=loadQuotes){
   const box=el('section','operation-editor request-operations'),heading=el('h2',null,'Acompanhamento interno');
   box.id='request-operations';
@@ -49,7 +49,7 @@
  if(latest?.review){
   const review=el('section','proposal-review-summary');
   review.id='request-proposal-review-'+latest.version;
-  const revise=proposalLink(d);revise.textContent='Preparar nova versão →';
+  const revise=proposalLink(d);revise.textContent='Preparar nova versão ';
   review.append(el('h3',null,'Revisão solicitada · v'+latest.version),
     el('p',null,latest.review.requestedBy+' · '+dateLabel(latest.review.requestedAt)),
     el('p',null,latest.review.note),revise);
@@ -62,7 +62,7 @@
   workspace.classList.add('hidden');
   document.body.insertBefore(panel,qs('.footer'));
 
-  const back=el('button','request-back',returnToQueue?'← Voltar às pendências':'← Voltar às cotações');
+  const back=el('button','request-back',returnToQueue?' Voltar às pendências':' Voltar às cotações');
   back.type='button';
   back.onclick=()=>{
     panel.remove();
@@ -327,9 +327,7 @@
     if(task.priority<=2)timing.append(el('span','queue-urgent','Urgente'));
     if(task.date)timing.append(el('span','cell-secondary',(task.dateType==='received'?'Entrada: ':'Prazo: ')+dateLabel(task.date)));
     const assignee=el('span','queue-task-owner',quote.operation?.assignedName||'Sem responsável');
-    const arrow=el('span','queue-task-arrow','→');
-    arrow.setAttribute('aria-hidden','true');
-    button.append(identity,timing,assignee,arrow);
+    button.append(identity,timing,assignee);
     button.onclick=()=>{
       const scrollY=window.scrollY;
       void openRequest(quote,button,task.target,()=>restoreQueuePosition(keys,index,scrollY));
@@ -361,8 +359,8 @@
 
  function showView(user){
   const logo=qs('header img'),consultant=user?.role==='consultant';
-  logo.src=user?brand.logoLight:brand.logoDark;
-  logo.dataset.brandImage=user?'logoLight':'logoDark';
+  logo.src=brand.logoLight;
+  logo.dataset.brandImage='logoLight';
   document.querySelectorAll('.request-panel').forEach(panel=>panel.remove());
   currentUser=user;
   cachedQuotes=[];
@@ -449,12 +447,17 @@
     }
     return;
   }
-  for(const q of quotes){const c=el('article','card'),top=el('div','card-top');top.append(el('span','num','#'+String(q.protocol).padStart(6,'0')),el('span','status '+q.status,q.progress?.label||STATUSES[q.status]));c.append(top,el('h3',null,q.form?.eventName||'Evento sem nome'),el('p',null,(q.form?.destination||'Destino a definir')+' · '+dateLabel(q.form?.departureDate)+' a '+dateLabel(q.form?.returnDate)));const open=el('button','request-open','Ver solicitação →');open.onclick=()=>openRequest(q,open);const duplicate=el('button','duplicate-quote','Duplicar cotação');duplicate.onclick=()=>duplicateQuote(q);if(q.progress)c.append(el('p','quote-next-action',q.progress.nextAction),el('p','cell-secondary','Atualizada em '+dateLabel(q.progress.lastUpdated)));c.append(open,proposalLink(q),duplicate);box.append(c);}
+  for(const q of quotes){const c=el('article','card'),top=el('div','card-top');top.append(el('span','num','#'+String(q.protocol).padStart(6,'0')),el('span','status '+q.status,q.progress?.label||STATUSES[q.status]));c.append(top,el('h3',null,q.form?.eventName||'Evento sem nome'),el('p',null,(q.form?.destination||'Destino a definir')+' · '+dateLabel(q.form?.departureDate)+' a '+dateLabel(q.form?.returnDate)));const open=el('button','request-open','Ver solicitação ');open.onclick=()=>openRequest(q,open);const duplicate=el('button','duplicate-quote','Duplicar cotação');duplicate.onclick=()=>duplicateQuote(q);if(q.progress)c.append(el('p','quote-next-action',q.progress.nextAction),el('p','cell-secondary','Atualizada em '+dateLabel(q.progress.lastUpdated)));c.append(open,proposalLink(q),duplicate);box.append(c);}
  }
  qs('#login-form').onsubmit=async(e)=>{e.preventDefault();qs('#login-error').textContent='';qs('#enter').disabled=true;try{const r=await api('/api/login','POST',{email:qs('#email').value,password:qs('#password').value}); // não compartilhar rascunhos entre empresas no mesmo navegador demo
  // Rascunhos ficam isolados por empresa na aplicação integrada.
  showView(r.user);}catch(e){qs('#login-error').textContent=e.message;}finally{qs('#enter').disabled=false;}};
- document.querySelectorAll('[data-email]').forEach(b=>b.addEventListener('click',()=>{qs('#email').value=b.dataset.email;qs('#password').value='Demo@2026!';qs('#password').focus();}));
+ document.querySelectorAll('[data-email]').forEach(button=>button.addEventListener('click',()=>{
+  if(qs('#enter').disabled)return;
+  qs('#email').value=button.dataset.email;
+  qs('#password').value='Demo@2026!';
+  qs('#login-form').requestSubmit();
+ }));
  qs('#exit').onclick=async()=>{try{await api('/api/logout','POST',{});if(currentUser?.companyId){localStorage.removeItem(storage.draftPrefix+currentUser.companyId);sessionStorage.removeItem(storage.attemptPrefix+currentUser.companyId);}showView(null);qs('#password').value='';}catch(e){qs('#workspace-message').textContent=e.message;}};
  const preferences=el('p','workflow-preferences');preferences.id='company-preferences';preferences.hidden=true;
  qs('#client-hero').after(preferences);
@@ -476,7 +479,7 @@
  qs('#view-queue').onclick=()=>setWorkspaceView(true);
  qs('#view-quotes').onclick=()=>setWorkspaceView(false);
  qs('#queue-owner').onchange=qs('#queue-priority').onchange=renderQueue;
- qs('#refresh').onclick=loadQuotes;qs('#refresh').textContent='Atualizar ↻';qs('#list-heading').tabIndex=-1;const tools=el('div','quote-tools'),searchLabel=el('label',null,'Buscar evento, empresa ou protocolo'),search=el('input');search.id='quote-search';search.type='search';search.placeholder='Digite para buscar';searchLabel.append(search);const filterLabel=el('label',null,'Situação'),filter=el('select');filter.id='quote-filter';for(const [v,t]of [['','Todas'],['action','Com próxima ação'],['urgent','Urgentes'],['active','Em andamento'],['done','Encerradas e canceladas'],...Object.entries(STATUSES)]){const o=el('option',null,t);o.value=v;filter.append(o);}filterLabel.append(filter);const sortLabel=el('label',null,'Ordenar por'),sort=el('select');sort.id='quote-sort';for(const [v,t]of [['action','Próxima ação'],['newest','Mais recentes'],['oldest','Mais antigas'],['due','Prazo de retorno']]){const o=el('option',null,t);o.value=v;sort.append(o);}sortLabel.append(sort);const pendingLabel=el('label','pending-filter','Somente com pendência'),pending=el('input');pending.id='pending-only';pending.type='checkbox';pendingLabel.id='pending-label';pendingLabel.prepend(pending);const count=el('p','quote-count');count.id='quote-count';count.setAttribute('role','status');tools.append(searchLabel,filterLabel,sortLabel,pendingLabel,count);qs('#cards').before(tools);search.oninput=filter.onchange=sort.onchange=pending.onchange=renderQuotes;
+ qs('#refresh').onclick=loadQuotes;qs('#refresh').textContent='Atualizar ';qs('#list-heading').tabIndex=-1;const tools=el('div','quote-tools'),searchLabel=el('label',null,'Buscar evento, empresa ou protocolo'),search=el('input');search.id='quote-search';search.type='search';search.placeholder='Digite para buscar';searchLabel.append(search);const filterLabel=el('label',null,'Situação'),filter=el('select');filter.id='quote-filter';for(const [v,t]of [['','Todas'],['action','Com próxima ação'],['urgent','Urgentes'],['active','Em andamento'],['done','Encerradas e canceladas'],...Object.entries(STATUSES)]){const o=el('option',null,t);o.value=v;filter.append(o);}filterLabel.append(filter);const sortLabel=el('label',null,'Ordenar por'),sort=el('select');sort.id='quote-sort';for(const [v,t]of [['action','Próxima ação'],['newest','Mais recentes'],['oldest','Mais antigas'],['due','Prazo de retorno']]){const o=el('option',null,t);o.value=v;sort.append(o);}sortLabel.append(sort);const pendingLabel=el('label','pending-filter','Somente com pendência'),pending=el('input');pending.id='pending-only';pending.type='checkbox';pendingLabel.id='pending-label';pendingLabel.prepend(pending);const count=el('p','quote-count');count.id='quote-count';count.setAttribute('role','status');tools.append(searchLabel,filterLabel,sortLabel,pendingLabel,count);qs('#cards').before(tools);search.oninput=filter.onchange=sort.onchange=pending.onchange=renderQuotes;
  const scene=qs('#scene');window.addEventListener('pointermove',e=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const x=(e.clientX/window.innerWidth-.5)*9,y=(e.clientY/window.innerHeight-.5)*9;scene.style.setProperty('--x',x.toFixed(1)+'px');scene.style.setProperty('--y',y.toFixed(1)+'px');},{passive:true});
  api('/api/session').then(r=>showView(r.user)).catch(()=>showView(null));
 })();

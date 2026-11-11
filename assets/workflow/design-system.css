@@ -1,0 +1,70 @@
+/* Shared presentation for the landing, access, briefing, proposals and administration. */
+:root {
+  --ui-canvas: #141923;
+  --ui-surface: #1b2230;
+  --ui-text: #eef1fa;
+  --ui-muted: #b4bed0;
+  --ui-line: #465168;
+  --ui-accent: #fce300;
+}
+body { font-family: var(--font-body), sans-serif; }
+button, input, select, textarea { font: inherit; }
+button, a { transition: background .15s, color .15s; }
+button { letter-spacing: normal; }
+.welcome-cta svg, .planning-navigation svg, .planning-navigation [data-lucide],
+.summary-item svg, .summary-service svg { display: none; }
+button:focus-visible, a:focus-visible, summary:focus-visible {
+  outline: 2px solid currentColor; outline-offset: 4px;
+}
+.welcome-cta { border-radius: 8px; box-shadow: none; }
+.welcome-description { max-width: 32rem; }
+.welcome-footer-brand > span, .welcome-brand-accent { display: none; }
+body:has(#login) { background: var(--ui-canvas); color: var(--ui-text); }
+body:has(#login) > header { background: #232e48; padding-block: 12px; }
+body:has(#login) > header .brand-sub { display: none; }
+body:has(#login) > header img { max-height: 36px; }
+body:has(#login) > header .demo { color: var(--ui-muted); border-color: var(--ui-line); }
+.login-grid { min-height: calc(100vh - 130px); display: block; padding: 48px 20px; }
+.login-panel { width: min(100%,920px); margin: auto; padding: 0; background: transparent; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
+.login-intro { padding-top: 24px; }
+.login-intro h1 { font: 650 clamp(28px,4vw,42px)/1.15 var(--font-body); letter-spacing: -.035em; margin-block: 22px 12px; }
+.login-intro .eyebrow { display: none; }
+.login-intro p, .login-panel .hint { color: var(--ui-muted); }
+.login-back { color: var(--ui-muted); }
+.login-fields { background: var(--ui-surface); padding: 26px; border: 1px solid var(--ui-line); border-radius: 12px; }
+.login-fields input { background: var(--ui-canvas); border-color: var(--ui-line); color: var(--ui-text); padding: 12px; }
+.login-fields .field:first-child { margin-top: 0; }
+.login-panel .primary { background: var(--ui-accent); color: #1d2946; border-radius: 8px; padding: 12px; }
+.quick { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.quick button { background: transparent; color: var(--ui-text); border: 1px solid var(--ui-line); border-radius: 8px; min-height: 44px; font-size: 14px; }
+.quick button:hover { background: #283349; }
+body:has(#login) .footer { color: var(--ui-muted); }
+.workspace-toolbar { border-bottom: 1px solid var(--theme-disabled); padding-bottom: 10px; }
+.queue-task { grid-template-columns: minmax(0,1fr) minmax(8rem,.36fr) minmax(7rem,.28fr); }
+.queue-task-arrow { display: none; }
+.queue-heading h2 { font-size: 18px; }
+.workflow-section { border-radius: 8px; box-shadow: none; }
+.request-view > .workflow-section { padding: 18px 0; border: 0; background: transparent; }
+.workflow-card { border-radius: 8px; box-shadow: none; }
+.request-tabs button { min-height: 46px; }
+.quote-tools { gap: 12px; }
+.quote-tools .pending-filter { font-size: 13px; }
+.request-panel .operation-editor { border-radius: 8px; }
+.quote-card { box-shadow: none !important; border-radius: 12px !important; }
+.planning-navigation button { border-radius: 8px; box-shadow: none; }
+.quote-card h2, .quote-card h3 { font-family: var(--font-body); letter-spacing: -.02em; }
+.quote-card label { line-height: 1.5; }
+.quote-card input, .quote-card select, .quote-card textarea { border-radius: 7px; }
+.screen-footer { border-top: 1px solid var(--theme-border); }
+.screen-footer button, .row-editor, .option, .live-version-banner { border-radius: 8px; box-shadow: none; }
+.option { padding: 18px; }
+.row-editor { border-color: var(--theme-border); }
+.live-version-banner { border-left-width: 1px; }
+@media(max-width:700px) {
+  .login-grid { padding: 24px 16px; }
+  .login-panel { grid-template-columns: minmax(0,1fr); gap: 20px; max-width: 460px; }
+  .login-intro { padding: 0; }
+  .login-intro h1 { margin-top: 14px; }
+  .login-fields { padding: 20px; }
+  .queue-task { grid-template-columns: minmax(0,1fr); }
+}

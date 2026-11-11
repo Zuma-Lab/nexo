@@ -9,7 +9,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo Projeto Eventos - Central de Cotacoes
-echo O portal sera aberto no navegador. Escolha Consultor demo para testar a central.
+echo A pagina inicial sera aberta. Clique em Iniciar cotacao para entrar.
 echo Mantenha esta janela aberta durante o teste.
 node scripts\launch-demo.cjs
 set "PROJETO_RESULT=%ERRORLEVEL%"

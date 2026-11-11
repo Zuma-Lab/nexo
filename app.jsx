@@ -453,7 +453,7 @@ function App() {
     return () => { controller.abort(); clearTimeout(timer); };
   }, []);
   const [stepIdx, setStepIdx] = useState(0);
-  useEffect(()=>{if(!DEMO_USER)fetch('/api/session').then(r=>r.json()).then(r=>{if(r.user)location.replace('/portal.html');}).catch(()=>{});},[]);
+
   const [started, setStarted] = useState(!!DEMO_USER);
   const [launching, setLaunching] = useState(false);
   const [slideDirection, setSlideDirection] = useState(1);
@@ -1913,7 +1913,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
         <section className={"review-checklist " + (issues.length ? 'has-issues' : 'is-ready')} aria-labelledby="review-pending-heading">
           <h3 id="review-pending-heading">{issues.length ? `Faltam ${issues.length} ajustes para registrar a solicitação` : 'Informações mínimas preenchidas'}</h3>
           <p>{issues.length ? 'Você pode continuar explorando o formulário. Antes de registrar, confira os pontos abaixo.' : 'Confira as preferências. Informações a definir serão tratadas como pendências de planejamento, sem escolhas automáticas.'}</p>
-          {issues.length > 0 && <ul>{issues.map((issue,index) => <li key={issue.field + index}><button type="button" onClick={() => locateIssue(issue)}>{issue.message}<span aria-hidden="true"> →</span></button></li>)}</ul>}
+          {issues.length > 0 && <ul>{issues.map((issue,index) => <li key={issue.field + index}><button type="button" onClick={() => locateIssue(issue)}>{issue.message}<span aria-hidden="true"> </span></button></li>)}</ul>}
           {guidanceLabels.length > 0 && <p>Orientação solicitada: {guidanceLabels.join(', ')}.</p>}
           {legacyDraft && <div className="legacy-draft-note"><p>Este rascunho veio da versão anterior. Confira as preferências: algumas opções podiam estar pré-selecionadas.</p><button className="confirm-legacy" type="button" onClick={() => setLegacyDraft(false)}>Conferi as preferências anteriores</button></div>}
         </section>
@@ -2145,7 +2145,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
             <h1 id="welcome-title">Seu próximo<br />encontro<br /><em>começa aqui.</em></h1>
             <p className="welcome-description">Conte o que sua empresa precisa. Reúna viagem, hospedagem e serviços em um só planejamento.</p>
             <button onClick={startQuote} disabled={launching} className="welcome-cta">
-              <span>Planejar meu evento</span>
+              <span>Iniciar cotação</span>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
             <p className="welcome-reassurance">Você pode revisar tudo antes de enviar.</p>
@@ -2198,7 +2198,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
       {/* ── CONTEÚDO PRINCIPAL ── */}
       <main className="quote-main">
         <aside className="live-summary" aria-label="Resumo do planejamento">
-          <a className="summary-home" href="/portal.html">← Minhas cotações</a>
+          <a className="summary-home" href="/portal.html"> Minhas cotações</a>
           
           <span className="quote-eyebrow font-sans text-[10px] font-bold tracking-[.18em] uppercase text-pt-yellow1 border-pt-yellow1/30">
             {BRAND.name.toUpperCase()} / {BRAND.category.toUpperCase()}

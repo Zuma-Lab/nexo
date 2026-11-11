@@ -4,14 +4,14 @@
   const option=(id,name,supplier,rows,extra={})=>({id,name,supplier,currency:'BRL',feePercent:'0',feeBase:'withTaxes',description:'',conditions:'Valores fictícios. Disponibilidade e condições serão confirmadas pelo consultor.',rows,...extra});
   const initial={event:'Encontro de lideranças',people:'50',validUntil:'',version:1,groups:[
     {id:'air',name:'Aéreo',service:'air',optional:false,description:'Compare tarifa, taxas, horários e bagagem por passageiro.',options:[
-      option('air-a','LATAM · voo direto','LATAM',[row('Tarifa aérea','900','30','1',{category:'fare'}),row('Taxa de embarque','100','30','1',{category:'boarding'})],{description:'Ida e volta · horários a confirmar\nOrigem → destino\nBagagem: 1 mala de mão. Exemplo fictício.'}),
-      option('air-b','GOL · voo com conexão','GOL',[row('Tarifa aérea','780','30','1',{category:'fare'}),row('Taxa de embarque','120','30','1',{category:'boarding'})],{description:'Ida e volta · uma conexão\nOrigem → conexão → destino\nBagagem: 1 mala de mão. Exemplo fictício.'})]},
+      option('air-a','LATAM · voo direto','LATAM',[row('Tarifa aérea','900','30','1',{category:'fare'}),row('Taxa de embarque','100','30','1',{category:'boarding'})],{description:'Ida e volta · horários a confirmar\nOrigem  destino\nBagagem: 1 mala de mão. Exemplo fictício.'}),
+      option('air-b','GOL · voo com conexão','GOL',[row('Tarifa aérea','780','30','1',{category:'fare'}),row('Taxa de embarque','120','30','1',{category:'boarding'})],{description:'Ida e volta · uma conexão\nOrigem  conexão  destino\nBagagem: 1 mala de mão. Exemplo fictício.'})]},
     {id:'hotel',name:'Hospedagem',service:'hotel',optional:false,description:'Compare o valor da diária por quarto e confira quantos hóspedes cada opção atende.',options:[
       option('hotel-a','Hotel Transamérica X','Hotel Transamérica X',[row('Apartamento duplo','300','15','2',{unit:'quartos',startDate:'2026-11-20',endDate:'2026-11-22',taxMode:'added',taxPercent:'5',occupancy:'2'}),row('Café da manhã incluso','','30','2',{state:'included',unit:'pessoas'})],{description:'Localização próxima ao evento\nCafé da manhã incluso\nCheck-in: 14h · check-out: 12h'}),
       option('hotel-b','Hotel Comfort Y','Hotel Comfort Y',[row('Apartamento duplo','330','15','2',{unit:'quartos',startDate:'2026-11-20',endDate:'2026-11-22',taxMode:'added',taxPercent:'5',occupancy:'2'}),row('Café da manhã incluso','','30','2',{state:'included',unit:'pessoas'})],{description:'Localização central\nCafé da manhã incluso\nCheck-in: 14h · check-out: 12h'})]},
     {id:'transfer',name:'Transfer',service:'transfer',optional:false,description:'30 passageiros · compare o valor por veículo e por trecho, com a capacidade claramente indicada.',options:[
-      option('transfer-a','Transfer A','Transfer A',[row('Van executiva · até 15 passageiros','450','2','1',{unit:'veículos'})],{description:'Aeroporto → hotel · um trecho\n2 vans para até 30 passageiros\nBagagem e horário a confirmar com o consultor.'}),
-      option('transfer-b','Transfer B','Transfer B',[row('Micro-ônibus · até 30 passageiros','850','1','1',{unit:'veículos'})],{description:'Aeroporto → hotel · um trecho\n1 micro-ônibus para até 30 passageiros\nBagagem e horário a confirmar com o consultor.'})]},
+      option('transfer-a','Transfer A','Transfer A',[row('Van executiva · até 15 passageiros','450','2','1',{unit:'veículos'})],{description:'Aeroporto  hotel · um trecho\n2 vans para até 30 passageiros\nBagagem e horário a confirmar com o consultor.'}),
+      option('transfer-b','Transfer B','Transfer B',[row('Micro-ônibus · até 30 passageiros','850','1','1',{unit:'veículos'})],{description:'Aeroporto  hotel · um trecho\n1 micro-ônibus para até 30 passageiros\nBagagem e horário a confirmar com o consultor.'})]},
     {id:'food',name:'Alimentação',service:'food',optional:false,description:'Confira o valor por pessoa e a quantidade de refeições.',options:[option('food-a','Almoço do grupo','Fornecedor fictício',[row('Almoço','70','50','1',{unit:'pessoas',taxMode:'added',taxPercent:'5'})],{description:'Uma refeição por participante. Cardápio será detalhado em uma próxima etapa do projeto.'})]},
     {id:'insurance',name:'Seguro viagem',service:'insurance',optional:true,description:'Serviço opcional. Escolha incluir ou continuar sem seguro nesta proposta.',options:[option('insurance-a','Seguro para o período completo','Seguradora fictícia',[row('Seguro viagem','150','30','1',{unit:'pessoas'})],{description:'30 viajantes · período completo\nCoberturas a preencher pelo consultor. Não incluso no aéreo.'})]}
   ]};
@@ -54,8 +54,8 @@
   }
   function pager(main,step,total,nextLabel,canAdvance=true){
     const footer=el('div',undefined,'screen-footer');
-    const back=button('← Voltar',()=>move(step-1));back.disabled=step===0;
-    const next=button(view==='client'&&editingChoice?'Voltar à revisão →':nextLabel,()=>{const destination=view==='client'&&editingChoice?data.groups.length:step+1;editingChoice=false;move(destination);},'primary');next.disabled=!canAdvance;
+    const back=button(' Voltar',()=>move(step-1));back.disabled=step===0;
+    const next=button(view==='client'&&editingChoice?'Voltar à revisão ':nextLabel,()=>{const destination=view==='client'&&editingChoice?data.groups.length:step+1;editingChoice=false;move(destination);},'primary');next.disabled=!canAdvance;
     footer.append(back,el('span',(step+1)+' de '+total,'version'),next);main.append(footer);
   }
   function editor(main){
@@ -63,13 +63,13 @@
     if(editorStep===0){
       screen(main,'CONSULTOR · DADOS DA PROPOSTA','Prepare a proposta','Defina o contexto. Depois, preencha um serviço de cada vez.');
       const card=el('section',undefined,'option'),grid=el('div',undefined,'grid');
-      input(grid,'Evento',data.event,v=>data.event=v);input(grid,'Participantes no evento',data.people,v=>data.people=v,'number');input(grid,'Validade da proposta',data.validUntil,v=>data.validUntil=v,'date');card.append(grid,el('p','Valores exclusivamente em reais. A quantidade atendida é definida em cada serviço.','supplier-detail'));main.append(card);save(main);pager(main,0,total,'Preencher serviços →');return;
+      input(grid,'Evento',data.event,v=>data.event=v);input(grid,'Participantes no evento',data.people,v=>data.people=v,'number');input(grid,'Validade da proposta',data.validUntil,v=>data.validUntil=v,'date');card.append(grid,el('p','Valores exclusivamente em reais. A quantidade atendida é definida em cada serviço.','supplier-detail'));main.append(card);save(main);pager(main,0,total,'Preencher serviços ');return;
     }
     if(editorStep===total-1){
       screen(main,'CONSULTOR · REVISÃO','Confira antes de apresentar','Cada alternativa tem seu próprio preço. O cliente escolherá uma opção em cada serviço.');
       for(const g of data.groups){const card=el('section',undefined,'option');card.append(el('h2',g.name));for(const o of g.options){const r=calculate(o),line=el('div',undefined,'review-choice');line.append(el('span',o.name),el('strong',r.valid?(r.pending?'A confirmar · subtotal '+money(r.total):money(r.total)+' para o grupo'):'Preenchimento pendente'));card.append(line);}card.append(button('Editar '+g.name.toLowerCase(),()=>move(data.groups.indexOf(g)+1),'link-button'));main.append(card);}
       main.append(el('p','Cardápio e outras moedas estão previstos para etapas futuras.','notice'));save(main);
-      const bar=el('div',undefined,'screen-footer');bar.append(button('← Voltar',()=>move(editorStep-1)),button('Ver como cliente',()=>switchView('client'),'primary'));main.append(bar);return;
+      const bar=el('div',undefined,'screen-footer');bar.append(button(' Voltar',()=>move(editorStep-1)),button('Ver como cliente',()=>switchView('client'),'primary'));main.append(bar);return;
     }
     const g=data.groups[editorStep-1];optionIndex=Math.min(optionIndex,g.options.length-1);const o=g.options[optionIndex];
     screen(main,'CONSULTOR · '+g.name.toUpperCase(),'Prepare as opções de '+g.name.toLowerCase(),'Uma alternativa de cada vez. O cliente verá os valores unitários e poderá comparar as opções.');
@@ -90,7 +90,7 @@
       input(grid,'Título da opção',o.name,v=>o.name=v);input(grid,'Fornecedor',o.supplier,v=>o.supplier=v);
       const desc=el('div',undefined,'wide');input(desc,g.service==='air'?'Itinerário, horários, conexões e bagagem':g.service==='hotel'?'Localização, regime e horários do hotel':'Descrição do serviço',o.description,v=>o.description=v,'textarea');grid.append(desc);card.append(grid);
       if(g.service==='food')card.append(el('p','O detalhamento de cardápio será desenvolvido em uma próxima etapa.','notice'));
-      card.append(button('Preencher valores →',()=>{section='prices';render();},'small-button'));
+      card.append(button('Preencher valores ',()=>{section='prices';render();},'small-button'));
     }else if(section==='prices'){
       if(g.service==='air')input(grid,'Passageiros desta opção',o.rows.find(x=>x.state==='priced')?.quantity||'',v=>{for(const r of o.rows){r.quantity=v;r.units='1';}rerender();},'number');
       input(grid,'Agenciamento (%) · zero se não houver',o.feePercent,v=>{o.feePercent=v;rerender();},'number');
@@ -118,7 +118,7 @@
     }else{
       input(grid,'Condições desta alternativa',o.conditions,v=>o.conditions=v,'textarea');card.append(grid,el('p','Descreva validade, pagamento, disponibilidade e cancelamento conforme a oferta do fornecedor.','supplier-detail'));
     }
-    main.append(card);save(main);pager(main,editorStep,total,editorStep===data.groups.length?'Revisar proposta →':'Próximo serviço →');
+    main.append(card);save(main);pager(main,editorStep,total,editorStep===data.groups.length?'Revisar proposta ':'Próximo serviço ');
   }
   function unitRows(target,rows){const dl=el('dl',undefined,'unit-breakdown');for(const [name,value]of rows){dl.append(el('dt',name),el('dd',money(value)));}target.append(dl);}
   function airPrice(card,o){
@@ -262,7 +262,7 @@
     }main.append(cards);
     const selected=choices[g.id]==='none'&&g.optional||g.options.some(o=>o.id===choices[g.id]&&displayPrice(o).valid&&!displayPrice(o).pending);
     if(!selected)main.append(el('p',g.optional?'Escolha uma opção ou continue sem este serviço.':'Selecione uma opção para continuar.','selection-help'));
-    pager(main,clientStep,total,clientStep===data.groups.length-1?'Revisar escolhas →':'Continuar →',selected||liveLocked);
+    pager(main,clientStep,total,clientStep===data.groups.length-1?'Revisar escolhas ':'Continuar ',selected||liveLocked);
   }
   function review(main){
     screen(main,'SUA PROPOSTA · REVISÃO','Confira suas escolhas','Cada serviço mantém sua quantidade. Revise os valores antes de confirmar.');
@@ -305,7 +305,7 @@
     box.append(feedback);
     if(quoteId&&confirmed)box.append(el('p','Versão '+viewVersion+' aprovada. Total registrado: '+money(total.total)));
     if(quoteId)box.append(el('p','O aceite comercial fica registrado nesta versão. A disponibilidade depende da confirmação dos fornecedores.'));
-    main.append(box,button('← Voltar ao último serviço',()=>move(data.groups.length-1),'link-button'));
+    main.append(box,button(' Voltar ao último serviço',()=>move(data.groups.length-1),'link-button'));
 
 
   }
@@ -370,6 +370,6 @@
       if(!data.groups.length)throw Error('Não há serviços selecionados no briefing.');
       view='editor';
     }else{if(!latestVersion)throw Error('A proposta ainda está em preparação.');loadVersion(live.versions[0]);view='client';$('#editor-tab').hidden=true;}
-    const header=document.querySelector('header');header.querySelector('small').textContent='PROPOSTA DA COTAÇÃO #'+String(q.protocol).padStart(6,'0');header.querySelector('p').textContent='Compare os serviços e confira as condições da versão apresentada.';const back=el('a','← Voltar às cotações','portal-back');back.href='/portal.html';header.prepend(back);render();
+    const header=document.querySelector('header');header.querySelector('small').textContent='PROPOSTA DA COTAÇÃO #'+String(q.protocol).padStart(6,'0');header.querySelector('p').textContent='Compare os serviços e confira as condições da versão apresentada.';const back=el('a',' Voltar às cotações','portal-back');back.href='/portal.html';header.prepend(back);render();
    }catch(error){main.textContent=error.message;const back=el('a','Voltar ao portal');back.href='/portal.html';main.append(back);$('#editor-tab').hidden=true;$('#client-tab').hidden=true;}}boot();
 })();

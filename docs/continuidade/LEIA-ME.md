@@ -4,8 +4,8 @@
 
 1. Clone o repositório e abra a pasta no Codex.
 2. Use Node.js 24 ou superior e execute `npm ci`.
-3. No Windows, abra `Iniciar-Projeto-Eventos.cmd` para entrar direto no portal. Com `npm start`, abra `http://localhost:8000/portal.html`.
-4. Selecione **Consultor demo** para abrir a fila. Os atalhos de login fornecem as credenciais fictícias do protótipo. Para ver uma cotação do início, entre como **Empresa Alpha · solicitante** e preencha um briefing fictício.
+3. No Windows, abra `Iniciar-Projeto-Eventos.cmd` e clique em **Iniciar cotação**. Com `npm start`, abra `http://localhost:8000/portal.html`.
+4. Selecione **Consultor** para abrir a fila. Os atalhos de login fornecem as credenciais fictícias do protótipo. Para ver uma cotação do início, entre como **Solicitante** e preencha um briefing fictício.
 
 ## Estado atual
 
@@ -20,3 +20,5 @@
 Abra [Estudo-UX-Qondor-Perk.md](Estudo-UX-Qondor-Perk.md) para recuperar as referências e [alteracoes.md](alteracoes.md) para recuperar as decisões da fila. O próximo piloto pode aprofundar a comparação de escopo de hotéis e testar o caminho de aprovação com cliente e consultor.
 
 As capturas usam dados fictícios. O GitHub contém os arquivos portáveis do projeto. A base SQLite, credenciais, dependências instaladas e backups locais ficam no computador de origem. O banco de demonstração é criado ao iniciar em um novo computador.
+
+[Pesquisa estrutural de Qondor, Perk e Nowadays](PESQUISA-ESTRUTURAL.md).
