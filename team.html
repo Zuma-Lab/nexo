@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<script src="./system-config.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Equipe local — Paytrack Grupos & Eventos</title>
+  <link rel="icon" href="./assets/symbol-paytrack-bicolor.png" />
+  <link rel="stylesheet" href="./design.css" />
+  <link rel="stylesheet" href="./team.css" />
+  <script src="./team.js" defer></script>
+</head>
+<body class="team-page">
+  <header class="team-header"><a href="./" aria-label="Voltar ao formulário"><img src="./assets/logo-paytrack-white-yellow.png" alt="Paytrack" /></a><span>GRUPOS & EVENTOS <b>Equipe local</b></span><button id="logout" type="button" hidden>Sair</button></header>
+  <main class="team-main">
+    <section class="team-intro"><p class="team-eyebrow">ACOMPANHAMENTO DA OPERAÇÃO</p><h1>Solicitações, em um só lugar.</h1><p>Ambiente de teste local. Atualizações ficam neste computador; notificações por e-mail ainda não estão configuradas.</p></section>
+    <p id="feedback" class="team-feedback" role="status" aria-live="polite"></p>
+    <section id="access" class="team-access" aria-labelledby="access-heading">
+      <h2 id="access-heading">Acesso da equipe</h2><p id="access-description">Verificando o acesso local…</p>
+      <form id="access-form" hidden>
+        <label for="password">Senha de acesso local</label><input id="password" type="password" required minlength="12" maxlength="128" autocomplete="current-password" />
+        <div id="confirm-password-wrap" hidden><label for="confirm-password">Confirme a senha</label><input id="confirm-password" type="password" maxlength="128" autocomplete="new-password" /></div>
+        <p id="password-hint">Use pelo menos 12 caracteres. Esta senha é somente para este ambiente local.</p>
+        <button id="access-submit" type="submit" class="team-primary">Entrar</button>
+      </form>
+    </section>
+    <section id="workspace" hidden>
+      <div class="team-toolbar"><div><label for="search">Buscar solicitação</label><input id="search" type="search" placeholder="Evento, empresa ou protocolo" /></div><div><label for="status-filter">Filtrar por situação</label><select id="status-filter"><option value="">Todas as situações</option><option value="received">Recebida</option><option value="needs_information">Aguardando informações</option><option value="quoting">Em cotação</option><option value="proposal_sent">Proposta enviada</option><option value="completed">Concluída</option></select></div><button type="button" id="refresh">Atualizar lista</button></div>
+      <p id="request-count" class="team-count"></p>
+      <div class="team-workspace"><section class="team-list-panel" aria-label="Lista de solicitações"><ul id="request-list"></ul></section><section id="request-detail" class="team-detail" aria-label="Detalhes da solicitação"><p>Selecione uma solicitação para conferir o briefing e atualizar o andamento.</p></section></div>
+    </section>
+  </main>
+</body>
+</html>

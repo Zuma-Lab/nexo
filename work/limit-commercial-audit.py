@@ -1,0 +1,3 @@
+from pathlib import Path
+p=Path('backend/commercial.cjs');s=p.read_text(encoding='utf-8').replace("user.role==='consultant'||a.action!=='draft_saved'", "user.role==='consultant'||['published','approved'].includes(a.action)");p.write_text(s,encoding='utf-8')
+p=Path('backend/commercial.test.cjs');s=p.read_text(encoding='utf-8').replace("assert.equal(state.audit.some(x=>x.action==='information_corrected'),true);", "assert.equal(state.audit.some(x=>x.action==='information_corrected'),false);const internal=(await a.http(a.route,'GET',null,a.consultant)).data;assert.equal(internal.audit.some(x=>x.action==='information_corrected'),true);");p.write_text(s,encoding='utf-8')

@@ -1,0 +1,8 @@
+from pathlib import Path
+p=Path('assets/test/index.html');s=p.read_text(encoding='utf-8');start=s.index('<h1>');end=s.index('\n</main>',start);s=s[:start]+'''<h1>Teste o fluxo completo de cotação</h1><p>Comece pelo portal: envie um briefing como cliente, prepare e publique uma proposta como consultor e volte ao cliente para aprovar a versão.</p>
+<section><article><h2>Sistema integrado — etapa comercial</h2><p>Briefing, acompanhamento interno, proposta salva, publicação de versões, aprovação do cliente e situação do evento.</p><a href="../../portal.html">Entrar no sistema atualizado →</a><p class="note">Na tela de acesso, use os botões Empresa Alpha e Consultor demo. Faça o teste com um evento fictício novo.</p></article>
+<article><h2>Demonstração avulsa</h2><p>Explore exemplos fictícios de aéreo, hospedagem e transfer para conhecer os campos e as alternativas.</p><a href="../proposal/index.html">Abrir exemplos demonstrativos →</a><p class="note">Esta entrada avulsa usa dados locais de exemplo. Para testar publicação e aprovação persistentes, entre pelo sistema integrado.</p></article></section>
+<footer><p class="note">Roteiro: Empresa Alpha → Nova cotação → enviar briefing → Sair → Consultor demo → Abrir solicitação → Preparar proposta → preencher dados, valores e condições → revisar e publicar → Sair → Empresa Alpha → Ver proposta → escolher e aprovar a versão.</p></footer>''' +s[end:];p.write_text(s,encoding='utf-8')
+assert 'href="../../portal.html"' in s and Path('portal.html').is_file()
+assert 'href="../proposal/index.html"' in s and Path('assets/proposal/index.html').is_file()
+print('Entrada de testes atualizada; destinos conferidos.')

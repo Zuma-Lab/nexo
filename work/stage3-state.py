@@ -1,0 +1,6 @@
+from pathlib import Path
+p=Path('backend/commercial.cjs');s=p.read_text(encoding='utf-8').replace("audit(q,user,'published',{version,revision:draft.revision});return {version};", "if(quote.status!=='proposal'){db.prepare('UPDATE quotes SET status=? WHERE id=?').run('proposal',q);db.prepare('INSERT INTO quote_status_history(quote_id,previous_status,new_status,changed_by,changed_at) VALUES(?,?,?,?,?)').run(q,quote.status,'proposal',user.id,new Date().toISOString());}audit(q,user,'published',{version,revision:draft.revision});return {version};")
+p.write_text(s,encoding='utf-8')
+p=Path('portal.js');s=p.read_text(encoding='utf-8').replace("closed:'Finalizada'","closed:'Encerrada'").replace("event.append(el('strong',null,q.form?.eventName||'Evento sem nome'),", "event.append(el('strong',null,q.form?.eventName||'Evento sem nome'),").replace("status.append(el('span','status '+q.status,STATUSES[q.status]));", "status.append(el('span','status '+q.status,STATUSES[q.status]));if(q.commercial?.version)status.append(el('span','cell-secondary','v'+q.commercial.version+(q.commercial.approved?' · aprovada':' · em análise pelo cliente')));")
+p.write_text(s,encoding='utf-8')
+p=Path('backend/demo.cjs');s=p.read_text(encoding='utf-8').replace("closed: 'Finalizada'","closed: 'Encerrada'");p.write_text(s,encoding='utf-8')

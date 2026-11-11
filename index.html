@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script src="./system-config.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projeto Eventos · Grupos &amp; Eventos</title>
+  <meta name="description" content="Formulário de solicitação de cotação e emissão de grupos e eventos corporativos" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="./assets/project-symbol.svg" />
+
+  <link rel="stylesheet" href="./assets/runtime/tailwind.css" />
+  <script src="./assets/runtime/lucide.js"></script>
+  <script src="./assets/runtime/react.js"></script>
+  <script src="./assets/runtime/react-dom.js"></script>
+
+  <!-- Base de Dados de Cidades Brasileiras (IBGE 5.571 municípios) -->
+  <script src="./cities.js"></script>
+  <script src="./briefing-rules.js"></script>
+
+  <style>
+    @keyframes heroEnter { from {opacity:0;transform:translateY(12px)} to {opacity:1;transform:translateY(0)} }
+    .hero-enter {animation:heroEnter .65s ease both}
+    @keyframes stepSlide { from {opacity:0;transform:translateX(var(--slide-from,18px))} to {opacity:1;transform:translateX(0)} }
+    @keyframes stepExit { from {opacity:1;transform:translateX(0)} to {opacity:0;transform:translateX(var(--slide-out,-8px))} }
+    .step-enter {animation:stepSlide .35s ease both}
+    .step-content.is-leaving {animation:stepExit .18s ease both;pointer-events:none}
+    .hero-scene.is-launching .landing-main {opacity:0;transition:opacity .3s ease}
+    .launch-overlay {position:fixed;inset:0;z-index:100;background:var(--theme-primary);animation:heroEnter .5s ease both;pointer-events:none}
+    .quote-content {min-width:0}
+    .quote-card [id] {scroll-margin:72px 0}
+    .quote-card .field-spotlight {outline:2px solid var(--theme-accentMuted);outline-offset:5px}
+    @media screen {#printable-report{display:none}}
+    @media print {body{background:white!important} .quote-shell, .hero-scene, .toast-enter{display:none!important} #printable-report{display:block!important;padding:0!important} .page-break{page-break-before:always}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+  <link rel="stylesheet" href="./design.css" />
+<link rel="stylesheet" href="./demo.css">
+</head>
+
+<body class="bg-[#F8F9FC] text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-pt-yellow1 selection:text-pt-dark">
+<div id="root"></div>
+
+<script src="./assets/runtime/app.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

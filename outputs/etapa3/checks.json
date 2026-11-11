@@ -1,0 +1,8 @@
+{
+  "publicationFromEditor": true,
+  "explicitApproval": true,
+  "approvalPersistsOnReload": true,
+  "eventProgress": true,
+  "companyIsolation": true,
+  "noBrowserErrors": true
+}

@@ -1,0 +1,218 @@
+[
+  {
+    "name": "abertura",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "login",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "portal-cliente",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "form-evento",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "form-empresa",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "revisao",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "painel-consultor",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "editor-detalhes",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "editor-valores",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "cliente-aereo",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "cliente-hospedagem",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "cliente-transfer",
+    "width": 375,
+    "scroll": 375,
+    "small": []
+  },
+  {
+    "name": "abertura",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "login",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "portal-cliente",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "form-evento",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "form-empresa",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "revisao",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "painel-consultor",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "editor-detalhes",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "editor-valores",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "cliente-aereo",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "cliente-hospedagem",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "cliente-transfer",
+    "width": 768,
+    "scroll": 768,
+    "small": []
+  },
+  {
+    "name": "abertura",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "login",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "portal-cliente",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "form-evento",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "form-empresa",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "revisao",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "painel-consultor",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "editor-detalhes",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "editor-valores",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "cliente-aereo",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "cliente-hospedagem",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  },
+  {
+    "name": "cliente-transfer",
+    "width": 1280,
+    "scroll": 1280,
+    "small": []
+  }
+]
