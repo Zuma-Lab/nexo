@@ -4,7 +4,7 @@
 
 1. Clone o repositório e abra a pasta no Codex.
 2. Use Node.js 24 ou superior e execute `npm ci`.
-3. No Windows, abra `Iniciar-Projeto-Eventos.cmd` e escolha **Sistema integrado**. Com `npm start`, abra `http://localhost:8000/portal.html`.
+3. No Windows, abra `Iniciar-Projeto-Eventos.cmd` para entrar direto no portal. Com `npm start`, abra `http://localhost:8000/portal.html`.
 4. Selecione **Consultor demo** para abrir a fila. Os atalhos de login fornecem as credenciais fictícias do protótipo. Para ver uma cotação do início, entre como **Empresa Alpha · solicitante** e preencha um briefing fictício.
 
 ## Estado atual

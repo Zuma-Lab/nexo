@@ -14,8 +14,8 @@ function launch({port=Number(process.env.PORT||8000),database=process.env.PAYTRA
     }else{console.error('Não foi possível iniciar o teste:',error.message);app.db.close();process.exitCode=1;}
   });
   app.server.once('listening',()=>{
-    const url='http://127.0.0.1:'+app.server.address().port+'/assets/test/index.html';
-    console.log('Teste atualizado do Projeto Eventos: '+url);
+    const url='http://127.0.0.1:'+app.server.address().port+'/portal.html';
+    console.log('Portal do Projeto Eventos: '+url);
     console.log('Mantenha esta janela aberta. Para encerrar, pressione Ctrl+C.');
     if(open)spawn('cmd.exe',['/c','start','',url],{stdio:'ignore',windowsHide:true}).unref();
   });
