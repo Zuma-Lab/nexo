@@ -48,4 +48,12 @@ O briefing mantém campos legíveis e agrupados. A proposta mantém densidade su
 
 ## Continuidade
 
-A pesquisa pública fundamenta a estrutura proposta. A validação com pessoas reais deve verificar se elas identificam a próxima ação, encontram condições da proposta e retornam à tarefa de origem. A expansão do comparativo para uma matriz completa de categorias e condições continua sendo trabalho específico de produto.
+A pesquisa pública fundamenta a estrutura proposta. A validação com pessoas reais deve verificar se elas identificam a próxima ação, encontram condições da proposta e retornam à tarefa de origem.
+
+## Sourcing corporativo e decisão comercial
+
+O Cvent Global Planner Sourcing Report de 2026 pesquisou 1.650 profissionais em seis regiões, incluindo a América Latina. Na amostra global, 72% esperavam aumento de custos e 35% apontaram manter o orçamento como principal preocupação. A especificação das salas, imagens e plantas também influenciam a seleção inicial. Esses percentuais descrevem a amostra global. [Pesquisa da Cvent](https://www.cvent.com/en/blog/events/venue-sourcing-trends) · [Comportamento de busca e seleção](https://www.cvent.com/en/blog/hospitality/inside-planner-behavior-what-data-reveals-about-group-hotel-bookings)
+
+Para o consultor, a decisão operacional é comparar a última resposta por fornecedor e serviço. A tabela apresenta total, base, taxas, quantidade, período, validade e condições. O servidor identifica diferenças de período, quartos e capacidade para hospedagem. Uma resposta recebida fica visível antes da validação, com acesso ao registro. O filtro de prontidão deixa apenas as respostas aptas para levar à proposta. Diferenças de escopo permanecem visíveis mesmo após validação.
+
+O preço exibido é o total da resposta para o escopo cotado. Itens opcionais, montagem da proposta e aprovação seguem em suas respectivas etapas. Essa comparação é interna e usa os dados estruturados que o fornecedor já informou.

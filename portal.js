@@ -108,7 +108,9 @@
     let sourcingReady,commercialReady;
     const definitions=[
       ['overview','Visão geral'],['briefing','Briefing'],
-      ['suppliers',consultant?'Fornecedores':'Hotéis'],['proposals','Propostas'],['history','Histórico']
+      ['suppliers',consultant?'Fornecedores':'Hotéis'],
+      ...(consultant?[['budget','Orçamento']]:[]),
+      ['proposals','Propostas'],['history','Histórico']
     ];
     function selectView(key){
       activeView=key;
@@ -211,7 +213,7 @@
       if(panel.isConnected&&focusedTask?.startsWith('supplier-')){
         await jumpTo(document.getElementById(focusedTask)?focusedTask:'request-sourcing');
       }
-    });
+    },views.get('budget')?.section,jumpTo);
     for(const item of d.sections||[]){
       const section=QuoteWorkflow.group(briefing,'request-'+item.id,item.title);
       section.classList.add('briefing-section');
@@ -272,6 +274,7 @@
    if(!filter)return true;
    const status=q.progress?.status||q.status;
    if(filter==='action')return !!q.progress?.actionable;
+   if(filter==='decision')return q.progress?.awaitingDecision===true;
    if(filter==='urgent')return q.progress?.tasks?.some(task=>task.priority<=2)||false;
    if(filter==='done')return ['closed','cancelled'].includes(status);
    if(filter==='active')return !['closed','cancelled'].includes(status);
@@ -357,6 +360,30 @@
   section.append(label,select,panel);return section;
  }
 
+ function enterWorkspace(user){
+  const url=new URL(location.href);
+  if(user&&url.searchParams.get('acao')==='nova-cotacao'){
+    if(user.role==='client'){
+      location.replace('/formulario.html');
+      return;
+    }
+    url.searchParams.delete('acao');
+    history.replaceState(null,'',url);
+  }
+  showView(user);
+ }
+ const clientViews=[['','Todas'],['action','Precisa de você'],['decision','Propostas aguardando decisão'],['active','Em andamento'],['done','Encerradas']];
+ function renderClientFilters(){
+  const filters=qs('#client-filters');
+  filters.hidden=currentUser?.role!=='client'||!cachedQuotes.length;
+  if(filters.hidden)return;
+  const selected=qs('#quote-filter').value;
+  for(const button of filters.querySelectorAll('button')){
+    const [value,label]=clientViews.find(([key])=>key===button.dataset.filter);
+    button.textContent=label+' ('+cachedQuotes.filter(q=>matchesFilter(q,value)).length+')';
+    button.setAttribute('aria-pressed',String(selected===value));
+  }
+ }
  function showView(user){
   const logo=qs('header img'),consultant=user?.role==='consultant';
   logo.src=brand.logoLight;
@@ -364,6 +391,7 @@
   document.querySelectorAll('.request-panel').forEach(panel=>panel.remove());
   currentUser=user;
   cachedQuotes=[];
+  renderClientFilters();
   loadVersion++;
   document.body.classList.toggle('is-consultant',consultant);
   document.body.classList.toggle('is-authenticated',!!user);
@@ -410,7 +438,7 @@
     if(version===loadVersion&&session===currentUser)status.textContent=e.message+' Use Atualizar para tentar novamente.';
   }
  }
- function renderQuotes(){if(!currentUser)return;const box=qs('#cards');box.replaceChildren();const consultant=currentUser.role==='consultant',query=(qs('#quote-search')?.value||'').toLocaleLowerCase('pt-BR'),filter=qs('#quote-filter')?.value||'',pending=consultant&&qs('#pending-only')?.checked;
+ function renderQuotes(){if(!currentUser)return;renderClientFilters();const box=qs('#cards');box.replaceChildren();const consultant=currentUser.role==='consultant',query=(qs('#quote-search')?.value||'').toLocaleLowerCase('pt-BR'),filter=qs('#quote-filter')?.value||'',pending=consultant&&qs('#pending-only')?.checked;
   let quotes=cachedQuotes.filter(q=>matchesFilter(q,filter)&&(!pending||q.operation?.pendingNote||q.progress?.actionable)&&(!query||[q.form?.eventName,q.companyName,q.protocol,String(q.protocol).padStart(6,'0')].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
   if(qs('#quote-sort').value==='action')quotes.sort((a,b)=>(a.progress?.tasks?.[0]?.priority??(a.progress?.actionable?6:7))-(b.progress?.tasks?.[0]?.priority??(b.progress?.actionable?6:7))||(a.progress?.tasks?.[0]?.date||'9999').localeCompare(b.progress?.tasks?.[0]?.date||'9999')||b.created.localeCompare(a.created));else if(qs('#quote-sort').value==='oldest')quotes.sort((a,b)=>a.created.localeCompare(b.created));else if(qs('#quote-sort').value==='due')quotes.sort((a,b)=>(a.operation?.dueDate||'9999').localeCompare(b.operation?.dueDate||'9999'));else quotes.sort((a,b)=>b.created.localeCompare(a.created));
   qs('#empty').style.display=quotes.length?'none':'block';qs('#empty').textContent=cachedQuotes.length?'Nenhuma cotação encontrada para esta busca.':'Nenhuma cotação registrada ainda.';qs('#quote-count').textContent=quotes.length+' de '+cachedQuotes.length+' solicitações';
@@ -451,7 +479,7 @@
  }
  qs('#login-form').onsubmit=async(e)=>{e.preventDefault();qs('#login-error').textContent='';qs('#enter').disabled=true;try{const r=await api('/api/login','POST',{email:qs('#email').value,password:qs('#password').value}); // não compartilhar rascunhos entre empresas no mesmo navegador demo
  // Rascunhos ficam isolados por empresa na aplicação integrada.
- showView(r.user);}catch(e){qs('#login-error').textContent=e.message;}finally{qs('#enter').disabled=false;}};
+ enterWorkspace(r.user);}catch(e){qs('#login-error').textContent=e.message;}finally{qs('#enter').disabled=false;}};
  document.querySelectorAll('[data-email]').forEach(button=>button.addEventListener('click',()=>{
   if(qs('#enter').disabled)return;
   qs('#email').value=button.dataset.email;
@@ -481,5 +509,15 @@
  qs('#queue-owner').onchange=qs('#queue-priority').onchange=renderQueue;
  qs('#refresh').onclick=loadQuotes;qs('#refresh').textContent='Atualizar ';qs('#list-heading').tabIndex=-1;const tools=el('div','quote-tools'),searchLabel=el('label',null,'Buscar evento, empresa ou protocolo'),search=el('input');search.id='quote-search';search.type='search';search.placeholder='Digite para buscar';searchLabel.append(search);const filterLabel=el('label',null,'Situação'),filter=el('select');filter.id='quote-filter';for(const [v,t]of [['','Todas'],['action','Com próxima ação'],['urgent','Urgentes'],['active','Em andamento'],['done','Encerradas e canceladas'],...Object.entries(STATUSES)]){const o=el('option',null,t);o.value=v;filter.append(o);}filterLabel.append(filter);const sortLabel=el('label',null,'Ordenar por'),sort=el('select');sort.id='quote-sort';for(const [v,t]of [['action','Próxima ação'],['newest','Mais recentes'],['oldest','Mais antigas'],['due','Prazo de retorno']]){const o=el('option',null,t);o.value=v;sort.append(o);}sortLabel.append(sort);const pendingLabel=el('label','pending-filter','Somente com pendência'),pending=el('input');pending.id='pending-only';pending.type='checkbox';pendingLabel.id='pending-label';pendingLabel.prepend(pending);const count=el('p','quote-count');count.id='quote-count';count.setAttribute('role','status');tools.append(searchLabel,filterLabel,sortLabel,pendingLabel,count);qs('#cards').before(tools);search.oninput=filter.onchange=sort.onchange=pending.onchange=renderQuotes;
  const scene=qs('#scene');window.addEventListener('pointermove',e=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const x=(e.clientX/window.innerWidth-.5)*9,y=(e.clientY/window.innerHeight-.5)*9;scene.style.setProperty('--x',x.toFixed(1)+'px');scene.style.setProperty('--y',y.toFixed(1)+'px');},{passive:true});
- api('/api/session').then(r=>showView(r.user)).catch(()=>showView(null));
+ const quoteFilter=qs('#quote-filter');
+ quoteFilter.add(new Option('Propostas aguardando decisão','decision'));
+ for(const [value,label] of clientViews){
+  const button=el('button',null,label);
+  button.type='button';
+  button.dataset.filter=value;
+  button.setAttribute('aria-controls','cards');
+  button.onclick=()=>{quoteFilter.value=value;renderQuotes();};
+  qs('#client-filters').append(button);
+ }
+ api('/api/session').then(r=>enterWorkspace(r.user)).catch(()=>showView(null));
 })();

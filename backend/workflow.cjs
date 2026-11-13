@@ -49,7 +49,11 @@ const currentDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paul
 
 // Use calendar dates in São Paulo for both supplier and client proposal deadlines.
 function deadlineTasks(status,commercial,suppliers,operation,feedback,today){
-  if(closed(status))return [];
+  const feedbackTasks=feedback.map(entry=>({
+    kind:'feedback',label:'Analisar observação do cliente · v'+entry.version,
+    target:'request-proposal-feedback-'+entry.id,priority:3,date:entry.created_at,dateType:'received'
+  }));
+  if(closed(status))return status==='closed'&&commercial.event==='in_progress'?feedbackTasks:[];
   const tasks=[];
   function add(kind,label,target,priority,date,dateType='deadline'){
     tasks.push({kind,label,target,priority,...(date?{date,dateType}:{})});
@@ -71,9 +75,7 @@ function deadlineTasks(status,commercial,suppliers,operation,feedback,today){
   }
   if(status==='review'&&commercial.version)add('review','Revisão solicitada · v'+commercial.version,'request-proposal-review-'+commercial.version,1);
   if(status==='proposal')expires(commercial.validUntil,'Proposta v'+commercial.version,'request-proposals','proposal-deadline');
-  for(const entry of feedback){
-    add('feedback','Analisar observação do cliente · v'+entry.version,'request-proposal-feedback-'+entry.id,3,entry.created_at,'received');
-  }
+  tasks.push(...feedbackTasks);
   if(status!=='approved'){
     for(const request of suppliers.requests||[]){
       const target='supplier-request-'+request.id;
@@ -214,8 +216,9 @@ function createWorkflow(db,{hashPassword}){
     ).all(quote.id):[];
     const today=currentDay();
     const tasks=consultant?deadlineTasks(status,commercial,suppliers,operation,feedback,today):[];
+    const awaitingDecision=status==='proposal'&&commercial.version>0&&commercial.validUntil>=today;
     const actionable=consultant?tasks.length>0
-      : !closed(status)&&(!!openComplement||status==='proposal'&&mayApprove(user,quote)&&commercial.validUntil>=today);
+      : !closed(status)&&(!!openComplement||awaitingDecision&&mayApprove(user,quote));
     let nextAction=consultant?'Acompanhar a cotação.':'Acompanhe a cotação pelo portal.';
     if(status==='received'||status==='analysis')nextAction=consultant?'Conferir briefing.':'A equipe vai conferir o briefing.';
     if(status==='quoting')nextAction=consultant?'Conferir pedidos e respostas dos fornecedores.':'A equipe está cotando os serviços.';
@@ -232,10 +235,10 @@ function createWorkflow(db,{hashPassword}){
     }
     if(status==='approved'&&!actionable)nextAction='Consulte a versão aprovada.';
     if(closed(status))nextAction='Consulte o histórico e as versões registradas.';
-    if(consultant&&commercial.openFeedback&&!closed(status))nextAction='Analisar observações do cliente sobre a proposta.';
+    if(consultant&&commercial.openFeedback&&(!closed(status)||status==='closed'&&commercial.event==='in_progress'))nextAction='Analisar observações do cliente sobre a proposta.';
     if(tasks.length)nextAction=tasks[0].label+'.';
     return {
-      status,label:labels[status]||labels.received,nextAction,actionable,
+      status,label:labels[status]||labels.received,nextAction,actionable,awaitingDecision,
       lastUpdated:[quote.created,latestStatus,lastActivity].filter(Boolean).sort().at(-1),
       complement:closed(status)?null:openComplement,
       ...(consultant?{transitions:transitions[quote.status]||[],tasks}:{}),

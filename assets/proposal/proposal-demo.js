@@ -207,11 +207,12 @@
   function feedbackPanel(main){
     if(!quoteId||liveUser.role!=='client'||!viewVersion)return;
     const comments=(live.feedback||[]).filter(entry=>entry.version===viewVersion);
-    if(!comments.length&&(!live.open||viewVersion!==latestVersion))return;
+    const canSend=live.canSendFeedback&&viewVersion===latestVersion;
+    if(!comments.length&&!canSend)return;
     const wrap=el('details',undefined,'option');
     wrap.append(el('summary','Observações e pedidos de alteração'));
     for(const entry of comments)wrap.append(el('p',entry.name+' · '+entry.note+(entry.resolved_at?' · Analisada':' · Aguardando análise')));
-    if(live.open&&viewVersion===latestVersion){
+    if(canSend){
       const form=el('form');
       const note=input(form,'Alteração sugerida','',()=>{},'textarea');
       note.onchange=null;

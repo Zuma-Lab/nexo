@@ -109,7 +109,7 @@
     });
     parent.append(show);
   }
-  async function sourcing(parent,q,user,api,onChange){
+  async function sourcing(parent,q,user,api,onChange,budget,onNavigate){
     const internal=user.role==='consultant';
     const root=group(parent,'request-sourcing',internal?'Fornecedores':'Hotéis');
     const url='/api/quotes/'+q.id+'/sourcing';
@@ -117,15 +117,20 @@
     const heading=root.firstChild;
     root.append(content);
     const chosen=new Set();
+    const comparisonFilters={category:null,readyOnly:false};
     async function reload(){
       const catalogWasOpen=content.querySelector('.supplier-catalog')?.open;
       content.replaceChildren(node('p','Carregando fornecedores…'));
+      budget?.replaceChildren(node('p','Carregando comparativo…'));
       try{
         const data=await api(url);
         if(!root.isConnected)return;
         render(data,catalogWasOpen);
         await onChange?.();
-      }catch(error){content.replaceChildren(node('p',error.message));}
+      }catch(error){
+        content.replaceChildren(node('p',error.message));
+        budget?.replaceChildren(node('p',error.message));
+      }
     }
     function render(data,catalogWasOpen){
       content.replaceChildren();
@@ -268,52 +273,94 @@
         const fields=form(cancel,'Confirmar cancelamento',async values=>{await call('cancel',values);await reload();});
         field(fields,'Motivo','reason',{required:true});
       }
-      if(internal)comparison(disclosure(content,'Comparar respostas validadas'),data,q);
+      if(budget){
+        budget.replaceChildren();
+        comparison(budget,data,q,comparisonFilters,onNavigate);
+      }
     }
     async function load(){
+      content.append(node('p','Carregando fornecedores…'));
+      budget?.append(node('p','Carregando comparativo…'));
       try{render(await api(url));}
-      catch(error){content.replaceChildren(node('p',error.message));}
+      catch(error){
+        content.replaceChildren(node('p',error.message));
+        budget?.replaceChildren(node('p',error.message));
+      }
     }
     await load();
     return heading;
   }
-  function comparison(parent,data,q){
-    const section=group(parent,'request-budget','Orçamento e comparação');
-    const offers=data.requests.filter(r=>r.state==='validated'&&r.offers[0]?.reviewedAt)
-      .map(request=>({...request.offers[0],supplier:request.supplier}));
-    if(!offers.length){section.append(node('p','As respostas validadas aparecerão aqui.'));return;}
-    const type=field(section,'Comparar serviço','compareService',{options:[...new Set(offers.map(o=>o.supplier.service))].map(key=>[key,data.services[key]])});
-    const table=node('div',undefined,'workflow-grid');
-    const render=()=>{
-      table.replaceChildren();
-      for(const offer of offers.filter(o=>o.supplier.service===type.value)){
-        const card=node('article',undefined,'workflow-card');
-        const row=offer.option.rows[0];
-        card.append(node('h3',offer.supplier.name),node('strong',money(offer.totalCents)),
-          node('p',row.quantity+' unidades × '+offer.units+' períodos · '+(row.occupancy?'ocupação '+row.occupancy:'BRL')),
-          node('p','Válida até '+date(offer.validUntil)),node('p',offer.option.description),node('p',offer.option.conditions));
-        if(row.startDate){
-          card.append(node('p',date(row.startDate)+' a '+date(row.endDate)));
-          const differences=[];
-          if(row.startDate!==data.briefing.startDate||row.endDate!==data.briefing.endDate)differences.push('período');
-          if(data.briefing.rooms&&Number(row.quantity)!==data.briefing.rooms)differences.push('quartos');
-          if(data.briefing.people&&Number(row.quantity)*Number(row.occupancy)<Number(data.briefing.people))differences.push('capacidade');
-          if(differences.length)card.append(node('p','Diferença em relação ao briefing: '+differences.join(', ')+'.','workflow-feedback'));
-        }
-        if(offer.validUntil<new Intl.DateTimeFormat('en-CA',{timeZone:'America/Sao_Paulo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())){
-          card.append(node('p','Resposta vencida. Solicite atualização antes de publicar.'));
-          table.append(card);
-          continue;
-        }
-        const link=node('a','Preparar proposta com esta resposta');
-        link.href='/assets/proposal/index.html?quote='+encodeURIComponent(q.id)+'&offer='+encodeURIComponent(offer.id);
-        card.append(link);
-        table.append(card);
+  function comparison(parent,data,q,filters,onNavigate){
+    const section=group(parent,'request-budget','Comparativo de fornecedores');
+    const responses=data.requests.filter(request=>request.state!=='cancelled'&&request.comparison);
+    if(!responses.length){
+      section.append(node('p','As respostas registradas aparecem aqui assim que forem recebidas.'));
+      return;
+    }
+    const categories=[...new Set(responses.map(request=>request.supplier.service))];
+    const category=field(section,'Serviço','compareService',{
+      options:categories.map(key=>[key,data.services[key]]),value:categories.includes(filters.category)?filters.category:categories[0]
+    });
+    const readyOnly=field(section,'Somente respostas prontas para a proposta','compareReady',{type:'checkbox',value:filters.readyOnly});
+    const status=node('p');
+    status.setAttribute('role','status');
+    const region=node('div',undefined,'supplier-matrix-wrap');
+    section.append(status,region);
+    function render(){
+      filters.category=category.value;
+      filters.readyOnly=readyOnly.checked;
+      region.replaceChildren();
+      const selected=responses.filter(request=>request.supplier.service===category.value&&(!readyOnly.checked||request.comparison.canUse));
+      status.textContent=selected.length===1?'1 resposta':selected.length+' respostas';
+      if(!selected.length){
+        region.append(node('p','Nenhuma resposta pronta neste serviço. Desmarque o filtro para revisar as demais.'));
+        return;
       }
-    };
-    type.value=offers[0].supplier.service;
-    type.onchange=render;
-    section.append(table);
+      const table=node('table',undefined,'supplier-matrix');
+      const head=table.createTHead().insertRow();
+      const body=table.createTBody();
+      for(const label of ['Fornecedor', 'Preço e taxas', 'Escopo', 'Validade e situação', 'Condições', 'Ação']){
+        const column=node('th',label);
+        column.scope='col';
+        head.append(column);
+      }
+      for(const request of selected){
+        const offer=request.offers[0],details=request.comparison,row=offer.option.rows[0];
+        const entry=body.insertRow();
+        const name=node('th',request.supplier.name);
+        name.scope='row';
+        entry.append(name);
+        name.append(node('span',offer.option.name,'cell-secondary'));
+        const price=entry.insertCell();
+        price.append(node('strong',money(offer.totalCents)));
+        if(details.baseCents!==null)price.append(node('span','Base '+money(details.baseCents),'cell-secondary'));
+        if(row.taxMode==='included')price.append(node('span','Taxas inclusas','cell-secondary'));
+        else if(details.taxCents>0)price.append(node('span','Taxas adicionais '+money(details.taxCents),'cell-secondary'));
+        const scope=entry.insertCell();
+        scope.append(node('span',row.quantity+' unidades · '+offer.units+(row.startDate?' diárias':' ocorrências')));
+        if(row.startDate)scope.append(node('span',date(row.startDate)+' a '+date(row.endDate)+' · ocupação '+row.occupancy,'cell-secondary'));
+        for(const difference of details.differences)scope.append(node('span',difference,'supplier-gap'));
+        const validity=entry.insertCell();
+        validity.append(node('span',date(offer.validUntil)),
+          node('span',details.expired?'Vencida':data.states[request.state],'cell-secondary'));
+        const conditions=entry.insertCell();
+        const disclosureControl=disclosure(conditions,'Ver condições');
+        disclosureControl.append(node('p',offer.option.conditions));
+        if(offer.option.description)disclosureControl.append(node('p',offer.option.description));
+        const actions=entry.insertCell();
+        if(data.closed){
+          actions.textContent='Consulta';
+        }else if(details.canUse){
+          const link=node('a','Usar na proposta');
+          link.href='/assets/proposal/index.html?quote='+encodeURIComponent(q.id)+'&offer='+encodeURIComponent(offer.id);
+          actions.append(link);
+        }else{
+          actions.append(action('Abrir resposta',()=>onNavigate('supplier-offer-'+offer.id)));
+        }
+      }
+      region.append(table);
+    }
+    category.onchange=readyOnly.onchange=render;
     render();
   }
   async function administration(parent,api){

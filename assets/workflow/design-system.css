@@ -49,6 +49,7 @@ body:has(#login) .footer { color: var(--ui-muted); }
 .request-tabs button { min-height: 46px; }
 .quote-tools { gap: 12px; }
 .quote-tools .pending-filter { font-size: 13px; }
+.client-filters:not([hidden]) { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .request-panel .operation-editor { border-radius: 8px; }
 .quote-card { box-shadow: none !important; border-radius: 12px !important; }
 .planning-navigation button { border-radius: 8px; box-shadow: none; }
@@ -60,6 +61,18 @@ body:has(#login) .footer { color: var(--ui-muted); }
 .option { padding: 18px; }
 .row-editor { border-color: var(--theme-border); }
 .live-version-banner { border-left-width: 1px; }
+.supplier-matrix-wrap { overflow: auto; }
+.supplier-matrix { width: 100%; min-width: 900px; border-collapse: separate; border-spacing: 0; text-align: left; }
+.supplier-matrix :is(th,td) { padding: 14px 12px; vertical-align: top; border-bottom: 1px solid var(--ui-line); }
+.supplier-matrix thead th { background: var(--ui-surface); color: var(--ui-muted); font-size: 13px; }
+.supplier-matrix tbody th { min-width: 145px; }
+.supplier-matrix tr > :first-child { position: sticky; left: 0; background: var(--ui-surface); }
+.supplier-matrix td:nth-child(3) { min-width: 185px; }
+.supplier-matrix td:nth-child(5) { min-width: 130px; overflow-wrap: anywhere; }
+.supplier-matrix .workflow-details { border: 0; margin: 0; padding: 0; }
+.supplier-matrix .workflow-details summary { min-height: 32px; }
+.supplier-matrix a { color: var(--ui-text); text-underline-offset: 4px; }
+.supplier-gap { color: #f9dda1; display: block; font-size: 12px; margin-top: 5px; }
 @media(max-width:700px) {
   .login-grid { padding: 24px 16px; }
   .login-panel { grid-template-columns: minmax(0,1fr); gap: 20px; max-width: 460px; }

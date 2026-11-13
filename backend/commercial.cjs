@@ -69,6 +69,8 @@ function createCommercial(db,workflow){
  }
  function handle(q,user,method,action,body={}){
   let quote=workflow.getQuote(user,q);
+  const canSendFeedback=()=>user.role==='client'&&(!closed(quote.status)||
+    (quote.status==='closed'&&db.prepare("SELECT 1 FROM event_lifecycle WHERE quote_id=? AND state='in_progress'").get(q)));
   const change=actionCallback=>transact(()=>{
    quote=workflow.getQuote(user,q);
    if(['approve','review','draft','publish'].includes(action)&&closed(quote.status))fail('A solicitação está encerrada ou cancelada.',409);
@@ -87,14 +89,16 @@ function createCommercial(db,workflow){
     .map(entry=>({...entry,detail:JSON.parse(entry.detail)}));
    const feedback=db.prepare(`SELECT f.id,f.version,f.note,f.created_at,f.resolved_at,u.name
      FROM proposal_feedback f JOIN app_users u ON u.id=f.actor_id WHERE f.quote_id=? ORDER BY f.id`).all(q);
-   return {versions,feedback,open:!closed(quote.status),draft:draft?{revision:draft.revision,data:JSON.parse(draft.payload)}:null,event,audit:history,
+   return {versions,feedback,open:!closed(quote.status),canSendFeedback:!!canSendFeedback(),draft:draft?{revision:draft.revision,data:JSON.parse(draft.payload)}:null,event,audit:history,
     canApprove:workflow.mayApprove(user,quote)&&!closed(quote.status)&&summary(q).validUntil>=today(),
     canReview:workflow.mayApprove(user,quote)&&!closed(quote.status)};
   }
   if(method!=='POST')fail('Método inválido.',405);
   if(action==='feedback')return change(()=>{
    if(user.role!=='client')problem('Ação exclusiva do cliente.',403);
-   if(closed(quote.status)||!latest(q)||body.version!==latest(q))problem('Atualize a proposta para enviar uma observação.',409);
+   const version=latest(q);
+   if(!canSendFeedback())problem('O envio de observações não está disponível nesta etapa.',409);
+   if(!version||body.version!==version)problem('Atualize a proposta para enviar uma observação.',409);
    const note=text(body.note,2000);
    if(!note)problem('Descreva a alteração desejada.');
    const prior=db.prepare('SELECT id FROM proposal_feedback WHERE quote_id=? AND version=? AND actor_id=? AND note=? AND resolved_at IS NULL')

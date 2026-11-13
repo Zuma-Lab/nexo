@@ -148,17 +148,23 @@ test('hotel selection is scoped and does not represent a send; validated offers 
   assert.equal((await a.call(url+'/send',a.consultant,send)).status,409);
   const offer={
     requestId:selected.id,expectedRevision:2,item:'Quarto duplo',unitPrice:'300',quantity:'20',
-    startDate:'2099-11-10',endDate:'2099-11-12',occupancy:'2',validUntil:'2099-11-09',
+    startDate:'2099-11-11',endDate:'2099-11-13',occupancy:'2',validUntil:'2099-11-09',
     conditions:'Cancelamento com 48 h de antecedência.',availability:'confirmed',taxMode:'added',taxPercent:'5'
   };
   assert.equal((await a.call(url+'/offer',a.consultant,offer)).status,200);
   const received=(await a.call(url,a.consultant)).data.requests.find(row=>row.id===selected.id);
   assert.equal(received.offers[0].totalCents,1260000);
+  assert.equal(received.comparison.baseCents,1200000);
+  assert.equal(received.comparison.taxCents,60000);
+  assert.deepEqual(received.comparison.differences,['Período diferente']);
+  assert.equal(received.comparison.canUse,false);
   const validation={requestId:selected.id,expectedRevision:3,offerId:received.offers[0].id};
   assert.equal((await a.call(url+'/validate',a.consultant,validation)).status,200);
+  const validated=(await a.call(url,a.consultant)).data.requests.find(row=>row.id===selected.id);
+  assert.equal(validated.comparison.canUse,true);
   const publicView=(await a.call(url,a.requester)).data;
   assert.equal(publicView.requests.find(row=>row.id===selected.id).state,'validated');
-  assert.doesNotMatch(JSON.stringify(publicView),/"(?:offers|evidence|unitPrice|totalCents|contact)"/);
+  assert.doesNotMatch(JSON.stringify(publicView),/"(?:offers|comparison|evidence|unitPrice|totalCents|contact)"/);
   await publish(a,0,0,{...received.offers[0].option,sourceOfferId:received.offers[0].id,feePercent:'12.5'});
   const commercial=(await a.call(a.path+'/commercial',a.requester)).data;
   assert.equal(commercial.versions[0].data.groups[0].options[0].saleTotalCents,1417500);

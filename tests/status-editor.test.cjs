@@ -4,7 +4,7 @@ function setup(fail=false){
  const calls=[];let reloads=0;const workspace={};
  const el=(tag,cl,text)=>({tag,cl,textContent:text,children:[],append(...nodes){this.children.push(...nodes)},setAttribute(){},focus(){this.focused=true}});
  const scope={el,STATUSES:{received:'Recebida',quoting:'Em cotação'},qs:()=>workspace,api:async(...args)=>{calls.push(args);if(fail)throw Error('Sem conexão')},loadQuotes:async()=>{reloads++}};
- const fn=vm.runInNewContext('('+source.slice(source.indexOf(' function statusEditor(q){'),source.indexOf(' function showView('))+')',scope);
+ const fn=vm.runInNewContext('('+source.slice(source.indexOf(' function statusEditor(q){'),source.indexOf(' function enterWorkspace('))+')',scope);
  const section=fn({id:'sample',protocol:'1',status:'received'});
  const [,select,panel]=section.children,[message,actions,feedback]=panel.children,[confirm,cancel]=actions.children;
  return {calls,select,panel,message,feedback,confirm,cancel,reloads:()=>reloads};

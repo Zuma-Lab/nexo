@@ -473,9 +473,10 @@ function App() {
   useEffect(() => () => clearTimeout(launchTimer.current), []);
   const startQuote = () => {
     if (launching) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { location.assign('/portal.html'); return; }
+    const destination = '/portal.html?acao=nova-cotacao';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { location.assign(destination); return; }
     setLaunching(true);
-    launchTimer.current = setTimeout(() => location.assign('/portal.html'), 450);
+    launchTimer.current = setTimeout(() => location.assign(destination), 450);
   };
   useEffect(() => {
     if (!DEMO_USER) return;
@@ -2137,24 +2138,23 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
       <div className="welcome-page">
         <header className="welcome-header">
           <img src={BRAND.logoLight} alt={BRAND.name} />
-          <span>GRUPOS & EVENTOS</span>
+          {apiStatus === 'ready' && <a className="welcome-portal-link" href="./portal.html">Acessar painel</a>}
         </header>
         <main className="welcome-main">
           <section className="welcome-copy hero-enter" aria-labelledby="welcome-title">
-            <p className="welcome-eyebrow">VIAGENS DE GRUPO & EVENTOS</p>
-            <h1 id="welcome-title">Seu próximo<br />encontro<br /><em>começa aqui.</em></h1>
-            <p className="welcome-description">Conte o que sua empresa precisa. Reúna viagem, hospedagem e serviços em um só planejamento.</p>
+            <p className="welcome-eyebrow">COTAÇÃO DE EVENTOS CORPORATIVOS</p>
+            <h1 id="welcome-title">Seu evento,<br /><em>bem cotado.</em></h1>
+            <p className="welcome-description">Reúna briefing, hospedagem, espaços, alimentação e transporte. Acompanhe cada etapa até receber a proposta.</p>
             <button onClick={startQuote} disabled={launching} className="welcome-cta">
               <span>Iniciar cotação</span>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
             <p className="welcome-reassurance">Você pode revisar tudo antes de enviar.</p>
           </section>
 
         </main>
         <footer className="welcome-footer">
-          <p>Aéreo <span>·</span> Hospedagem <span>·</span> Espaços e gastronomia <span>·</span> Transfers</p>
-          <div className="welcome-footer-brand">{apiStatus === 'ready' && <a className="team-entry" href="./portal.html">Acessar meu painel</a>}<span>{BRAND.name.toUpperCase()}</span><img className="welcome-brand-accent" src={BRAND.symbol} alt="" aria-hidden="true" width="36" height="45" /></div>
+          <p>Hospedagem <span>·</span> Espaços <span>·</span> Alimentação <span>·</span> Transporte</p>
+          <span>BRIEFING · COTAÇÃO · PROPOSTA</span>
         </footer>
       </div>
       {launching && <div className="launch-overlay" aria-hidden="true" />}

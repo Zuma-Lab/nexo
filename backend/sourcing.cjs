@@ -79,12 +79,14 @@ function createSourcing(db,workflow){
 
   function list(user,quote){
     const internal=user.role==='consultant';
+    const briefing=context(quote);
+    const today=internal?currentDay():null;
     const suppliers=db.prepare('SELECT * FROM suppliers WHERE company_id=? AND (?=1 OR active=1) ORDER BY name').all(quote.company_id,internal?1:0);
     const byId=new Map(suppliers.map(row=>[row.id,row]));
     const requests=db.prepare('SELECT * FROM supplier_requests WHERE quote_id=? ORDER BY requested_at,id').all(quote.id);
     return {
       suppliers:suppliers.filter(row=>internal||row.service==='hotel').map(row=>catalogRecord(row,internal)),
-      services,states,briefing:context(quote),preferences:workflow.view(user,quote).preferences,
+      services,states,briefing,preferences:workflow.view(user,quote).preferences,
       closed:closed(quote.status),
       requests:requests.map(row=>{
         const supplier=byId.get(row.supplier_id)||db.prepare('SELECT * FROM suppliers WHERE id=?').get(row.supplier_id);
@@ -94,6 +96,7 @@ function createSourcing(db,workflow){
           result.offers=db.prepare('SELECT * FROM supplier_offers WHERE request_id=? ORDER BY rowid DESC').all(row.id).map(offer=>({
             id:offer.id,receivedAt:offer.received_at,reviewedAt:offer.reviewed_at,totalCents:offer.total_cents,...JSON.parse(offer.data)
           }));
+          if(result.offers.length)result.comparison=compareOffer(result.offers[0],supplier.service,briefing,row.state,today);
         }
         return result;
       })
@@ -212,6 +215,26 @@ function followUpDate(value){
   if(followUpOn&&!date(followUpOn))problem('Informe uma data válida para cobrar o retorno.');
   return followUpOn||null;
 }
+function compareOffer(offer,service,briefing,state,today){
+  const row=offer.option.rows[0];
+  const totals=calculate(offer.option);
+  const differences=[];
+  if(service==='hotel'){
+    if(briefing.startDate&&briefing.endDate&&(row.startDate!==briefing.startDate||row.endDate!==briefing.endDate))differences.push('Período diferente');
+    if(briefing.rooms&&Number(row.quantity)!==briefing.rooms)differences.push('Quantidade de quartos diferente');
+    if(briefing.people&&Number(row.quantity)*Number(row.occupancy)<Number(briefing.people))differences.push('Capacidade abaixo do briefing');
+  }
+  const expired=offer.validUntil<today;
+  return {
+    offerId:offer.id,
+    baseCents:totals.valid?totals.base:null,
+    taxCents:totals.valid?totals.tax:null,
+    differences,
+    expired,
+    canUse:state==='validated'&&!!offer.reviewedAt&&!expired&&offer.availability==='confirmed'&&totals.valid&&!totals.pending
+  };
+}
+
 function normalizeOffer(request,body){
   const validUntil=required(body.validUntil,10);
   if(!date(validUntil))problem('Informe a validade da resposta.');
