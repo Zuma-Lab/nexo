@@ -45,7 +45,7 @@
   box.append(heading,facts,controls);
   return box;
  }
- async function commercialPanel(d,target,refresh){try{const state=await api('/api/quotes/'+d.id+'/commercial');if(!target.isConnected)return;const box=el('section','operation-editor');box.append(el('h2',null,'Proposta e evento'));const labels={planned:'Previsto',in_progress:'Em andamento',completed:'Concluído',cancelled:'Cancelado'},latest=state.versions[0];box.append(el('p',null,latest?'Proposta v'+latest.version+(latest.approval?' · aprovada':latest.review?' · revisão solicitada':' · aguardando aprovação'):'Proposta em preparação'),el('p',null,'Evento: '+labels[state.event.state]));const label=el('label',null,'Situação do evento'),select=el('select');select.id='event-state';label.htmlFor=select.id;for(const [value,text]of Object.entries(labels)){const o=el('option',null,text);o.value=value;select.append(o);}select.value=state.event.state;const reasonLabel=el('label',null,'Motivo da alteração'),reason=el('textarea');reason.id='event-reason';reason.maxLength=1000;reasonLabel.htmlFor=reason.id;const feedback=el('p');feedback.setAttribute('role','status');const save=el('button','secondary','Confirmar situação do evento');save.onclick=async()=>{save.disabled=true;try{const r=await api('/api/quotes/'+d.id+'/commercial/event','POST',{state:select.value,reason:reason.value,expectedRevision:state.event.revision});state.event=r;feedback.textContent='Situação do evento registrada no histórico. Reabra para consultar o histórico atualizado.';await loadQuotes();}catch(e){feedback.textContent=e.message;}finally{save.disabled=false;}};box.append(label,select,reasonLabel,reason,save,feedback);
+ async function commercialPanel(d,target,refresh){try{const state=await api('/api/quotes/'+d.id+'/commercial');if(!target.isConnected)return;const box=el('section','operation-editor');box.append(el('h2',null,'Proposta e evento'));const labels={planned:'Previsto',in_progress:'Em andamento',completed:'Concluído',cancelled:'Cancelado'},latest=state.versions[0];box.append(el('p',null,latest?'Proposta v'+latest.version+(latest.approval?' · aprovada':latest.review?' · revisão solicitada':' · aguardando aprovação'):'Proposta em preparação'),el('p',null,'Evento: '+labels[state.event.state]));const label=el('label',null,'Situação do evento'),select=el('select');select.id='event-state';label.htmlFor=select.id;for(const [value,text]of Object.entries(labels)){const o=el('option',null,text);o.value=value;select.append(o);}select.value=state.event.state;const reasonLabel=el('label',null,'Motivo da alteração'),reason=el('textarea');reason.id='event-reason';reason.maxLength=1000;reasonLabel.htmlFor=reason.id;const feedback=el('p');feedback.setAttribute('role','status');const save=el('button','secondary','Confirmar situação do evento');save.onclick=async()=>{save.disabled=true;try{const r=await api('/api/quotes/'+d.id+'/commercial/event','POST',{state:select.value,reason:reason.value,expectedRevision:state.event.revision});state.event=r;feedback.textContent='Situação do evento registrada no histórico. Reabra para consultar o histórico atualizado.';await loadQuotes();}catch(e){feedback.textContent=e.message;}finally{save.disabled=false;}};const lifecycle=el('details','workflow-details');lifecycle.append(el('summary',null,'Alterar situação do evento'),label,select,reasonLabel,reason,save);box.append(lifecycle,feedback);
  if(latest?.review){
   const review=el('section','proposal-review-summary');
   review.id='request-proposal-review-'+latest.version;
@@ -55,7 +55,7 @@
     el('p',null,latest.review.note),revise);
   box.prepend(review);
  }
- const correctionLabel=el('label',null,'Registro de correção informativa'),note=el('textarea');note.id='correction-note';note.maxLength=2000;correctionLabel.htmlFor=note.id;const add=el('button','secondary','Registrar correção');add.onclick=async()=>{add.disabled=true;try{await api('/api/quotes/'+d.id+'/commercial/correction','POST',{note:note.value});feedback.textContent='Correção registrada. Alterações comerciais precisam de nova versão da proposta.';note.value='';}catch(e){feedback.textContent=e.message;}finally{add.disabled=false;}};box.append(correctionLabel,note,add,el('p','operation-caption','Descreva o que foi corrigido. Mudanças de serviços, quantidades ou valores devem ser feitas na proposta e publicadas para novo aceite.'));const log=el('details','operation-log');log.append(el('summary',null,'Histórico comercial e do evento'));for(const entry of state.audit){if(entry.action==='draft_saved')continue;log.append(el('p',null,new Date(entry.created_at).toLocaleString('pt-BR')+' · '+({published:'Versão publicada',approved:'Versão aprovada',event_changed:'Situação do evento alterada',information_corrected:'Correção informativa'}[entry.action]||entry.action)+' · '+(entry.detail.version?'v'+entry.detail.version:entry.detail.reason||entry.detail.note||'')));}box.append(log);target.append(box);QuoteWorkflow.proposalFeedback(target,state.feedback,async id=>{await api('/api/quotes/'+d.id+'/commercial/resolve','POST',{id});await refresh();});}catch(e){target.prepend(el('p',null,e.message));}}
+ const correctionLabel=el('label',null,'Registro de correção informativa'),note=el('textarea');note.id='correction-note';note.maxLength=2000;correctionLabel.htmlFor=note.id;const add=el('button','secondary','Registrar correção');add.onclick=async()=>{add.disabled=true;try{await api('/api/quotes/'+d.id+'/commercial/correction','POST',{note:note.value});feedback.textContent='Correção registrada. Alterações comerciais precisam de nova versão da proposta.';note.value='';}catch(e){feedback.textContent=e.message;}finally{add.disabled=false;}};const correction=el('details','workflow-details');correction.append(el('summary',null,'Registrar correção informativa'),correctionLabel,note,add,el('p','operation-caption','Mudanças de serviços, quantidades ou valores exigem nova versão e aceite.'));box.append(correction);const log=el('details','operation-log');log.append(el('summary',null,'Histórico comercial e do evento'));for(const entry of state.audit){if(entry.action==='draft_saved')continue;log.append(el('p',null,new Date(entry.created_at).toLocaleString('pt-BR')+' · '+({published:'Versão publicada',approved:'Versão aprovada',event_changed:'Situação do evento alterada',information_corrected:'Correção informativa'}[entry.action]||entry.action)+' · '+(entry.detail.version?'v'+entry.detail.version:entry.detail.reason||entry.detail.note||'')));}box.append(log);target.append(box);QuoteWorkflow.proposalFeedback(target,state.feedback,async id=>{await api('/api/quotes/'+d.id+'/commercial/resolve','POST',{id});await refresh();});}catch(e){target.prepend(el('p',null,e.message));}}
  async function openRequest(q,trigger,initialTarget,returnToQueue,initialView='overview'){
   const workspace=qs('#workspace');
   const panel=el('main','request-panel');
@@ -372,7 +372,7 @@
   }
   showView(user);
  }
- const clientViews=[['','Todas'],['action','Precisa de você'],['decision','Propostas aguardando decisão'],['active','Em andamento'],['done','Encerradas']];
+ const clientViews=[['','Todas'],['action','Precisa de você'],['done','Encerradas']];
  function renderClientFilters(){
   const filters=qs('#client-filters');
   filters.hidden=currentUser?.role!=='client'||!cachedQuotes.length;
@@ -417,11 +417,11 @@
   preferences.textContent=user.preferences?[user.preferences.budget?'Investimento desejado: '+user.preferences.budget:'',user.preferences.criteria].filter(Boolean).join(' · '):'';
   preferences.hidden=!preferences.textContent;
   qs('#workspace-role').textContent=consultant?'Consultoria':'PORTAL DO CLIENTE · '+user.companyName;
-  qs('#greeting').textContent=consultant?'Central de cotações':'Minhas cotações';
-  qs('#workspace-lead').textContent=consultant?'':'Suas cotações, em um só lugar.';
-  qs('#workspace-lead').hidden=consultant;
+  qs('#greeting').textContent=consultant?'Central de cotações':'Meus eventos';
+  qs('#workspace-lead').textContent='';
+  qs('#workspace-lead').hidden=true;
   qs('#client-hero').classList.toggle('hidden',consultant);
-  qs('#list-heading').textContent=consultant?'Cotações':'Minhas cotações';
+  qs('#list-heading').textContent=consultant?'Cotações':'Cotações';
   qs('#quote-sort').value=consultant?'action':'newest';
   void loadQuotes();
  }
@@ -446,7 +446,7 @@
   let quotes=cachedQuotes.filter(q=>matchesFilter(q,filter)&&(!pending||q.operation?.pendingNote||q.progress?.actionable)&&(!query||[q.form?.eventName,q.companyName,q.protocol,String(q.protocol).padStart(6,'0')].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
   if(qs('#quote-sort').value==='action')quotes.sort((a,b)=>(a.progress?.tasks?.[0]?.priority??(a.progress?.actionable?6:7))-(b.progress?.tasks?.[0]?.priority??(b.progress?.actionable?6:7))||(a.progress?.tasks?.[0]?.date||'9999').localeCompare(b.progress?.tasks?.[0]?.date||'9999')||b.created.localeCompare(a.created));else if(qs('#quote-sort').value==='oldest')quotes.sort((a,b)=>a.created.localeCompare(b.created));else if(qs('#quote-sort').value==='due')quotes.sort((a,b)=>(a.operation?.dueDate||'9999').localeCompare(b.operation?.dueDate||'9999'));else quotes.sort((a,b)=>b.created.localeCompare(a.created));
   qs('#empty').style.display=quotes.length?'none':'block';qs('#empty').textContent=cachedQuotes.length?'Nenhuma cotação encontrada para esta busca.':'Nenhuma cotação registrada ainda.';qs('#quote-count').textContent=quotes.length+' de '+cachedQuotes.length+' solicitações';
-  qs('#pending-label').hidden=!consultant;qs('#quote-sort').querySelector('[value=due]').disabled=!consultant;
+  tools.hidden=!cachedQuotes.length;qs('#refresh').hidden=!cachedQuotes.length;qs('#list-heading').hidden=!cachedQuotes.length;qs('#pending-label').hidden=!consultant;qs('#quote-sort').querySelector('[value=due]').disabled=!consultant;
   if(consultant){
     if(!quotes.length)return;
     const table=el('table','quote-table'),caption=el('caption','sr-only','Solicitações de cotação');
@@ -479,7 +479,32 @@
     }
     return;
   }
-  for(const q of quotes){const c=el('article','card'),top=el('div','card-top');top.append(el('span','num','#'+String(q.protocol).padStart(6,'0')),el('span','status '+q.status,q.progress?.label||STATUSES[q.status]));c.append(top,el('h3',null,q.form?.eventName||'Evento sem nome'),el('p',null,(q.form?.destination||'Destino a definir')+' · '+dateLabel(q.form?.departureDate)+' a '+dateLabel(q.form?.returnDate)));const open=el('button','request-open','Ver solicitação ');open.onclick=()=>openRequest(q,open);const duplicate=el('button','duplicate-quote','Duplicar cotação');duplicate.onclick=()=>duplicateQuote(q);if(q.progress)c.append(el('p','quote-next-action',q.progress.nextAction),el('p','cell-secondary','Atualizada em '+dateLabel(q.progress.lastUpdated)));c.append(open,proposalLink(q),duplicate);box.append(c);}
+
+  for(const q of quotes){
+    const card=el('article','card client-quote-row');
+    const identity=el('div','client-quote-identity');
+    const title=el('button','quote-event-link',q.form?.eventName||'Evento sem nome');
+    title.type='button';
+    title.dataset.quoteId=q.id;
+    title.onclick=()=>openRequest(q,title);
+    identity.append(title,el('p','cell-secondary',
+      (q.form?.destination||'Destino a definir')+' · '+dateLabel(q.form?.departureDate)+' a '+dateLabel(q.form?.returnDate)),
+      el('span','num','#'+String(q.protocol).padStart(6,'0')));
+    const state=el('div','client-quote-state');
+    state.append(el('span','status '+q.status,q.progress?.label||STATUSES[q.status]));
+    if(q.progress)state.append(el('p','quote-next-action',q.progress.nextAction),
+      el('span','cell-secondary','Atualizada em '+dateLabel(q.progress.lastUpdated)));
+    const actions=el('div','client-quote-actions');
+    if(q.commercial?.version)actions.append(proposalLink(q));
+    const options=el('details','client-quote-options');
+    const duplicate=el('button','duplicate-quote','Duplicar cotação');
+    duplicate.type='button';
+    duplicate.onclick=()=>duplicateQuote(q);
+    options.append(el('summary',null,'Mais ações'),duplicate);
+    actions.append(options);
+    card.append(identity,state,actions);
+    box.append(card);
+  }
  }
  qs('#login-form').onsubmit=async(e)=>{e.preventDefault();qs('#login-error').textContent='';qs('#enter').disabled=true;try{const r=await api('/api/login','POST',{email:qs('#email').value,password:qs('#password').value}); // não compartilhar rascunhos entre empresas no mesmo navegador demo
  // Rascunhos ficam isolados por empresa na aplicação integrada.
@@ -511,7 +536,7 @@
  qs('#view-queue').onclick=()=>setWorkspaceView(true);
  qs('#view-quotes').onclick=()=>setWorkspaceView(false);
  qs('#queue-owner').onchange=qs('#queue-priority').onchange=renderQueue;
- qs('#refresh').onclick=loadQuotes;qs('#refresh').textContent='Atualizar ';qs('#list-heading').tabIndex=-1;const tools=el('div','quote-tools'),searchLabel=el('label',null,'Buscar evento, empresa ou protocolo'),search=el('input');search.id='quote-search';search.type='search';search.placeholder='Digite para buscar';searchLabel.append(search);const filterLabel=el('label',null,'Situação'),filter=el('select');filter.id='quote-filter';for(const [v,t]of [['','Todas'],['action','Com próxima ação'],['urgent','Urgentes'],['active','Em andamento'],['done','Encerradas e canceladas'],...Object.entries(STATUSES)]){const o=el('option',null,t);o.value=v;filter.append(o);}filterLabel.append(filter);const sortLabel=el('label',null,'Ordenar por'),sort=el('select');sort.id='quote-sort';for(const [v,t]of [['action','Próxima ação'],['newest','Mais recentes'],['oldest','Mais antigas'],['due','Prazo de retorno']]){const o=el('option',null,t);o.value=v;sort.append(o);}sortLabel.append(sort);const pendingLabel=el('label','pending-filter','Somente com pendência'),pending=el('input');pending.id='pending-only';pending.type='checkbox';pendingLabel.id='pending-label';pendingLabel.prepend(pending);const count=el('p','quote-count');count.id='quote-count';count.setAttribute('role','status');tools.append(searchLabel,filterLabel,sortLabel,pendingLabel,count);qs('#cards').before(tools);search.oninput=filter.onchange=sort.onchange=pending.onchange=renderQuotes;
+ qs('#refresh').onclick=loadQuotes;qs('#refresh').textContent='Atualizar ';qs('#list-heading').tabIndex=-1;const tools=el('div','quote-tools'),searchLabel=el('label',null,'Buscar evento, empresa ou protocolo'),search=el('input');search.id='quote-search';search.type='search';search.placeholder='Digite para buscar';searchLabel.append(search);const filterLabel=el('label',null,'Situação'),filter=el('select');filter.id='quote-filter';for(const [v,t]of [['','Todas'],['action','Com próxima ação'],['urgent','Urgentes'],['active','Em andamento'],['done','Encerradas e canceladas'],...Object.entries(STATUSES)]){const o=el('option',null,t);o.value=v;filter.append(o);}filterLabel.append(filter);const sortLabel=el('label',null,'Ordenar por'),sort=el('select');sort.id='quote-sort';for(const [v,t]of [['action','Próxima ação'],['newest','Mais recentes'],['oldest','Mais antigas'],['due','Prazo de retorno']]){const o=el('option',null,t);o.value=v;sort.append(o);}sortLabel.append(sort);const pendingLabel=el('label','pending-filter','Somente com pendência'),pending=el('input');pending.id='pending-only';pending.type='checkbox';pendingLabel.id='pending-label';pendingLabel.prepend(pending);const count=el('p','quote-count');count.id='quote-count';count.setAttribute('role','status');const advanced=el('details','quote-advanced');advanced.append(el('summary',null,'Filtros e ordenação'),filterLabel,sortLabel);tools.append(searchLabel,advanced,pendingLabel,count);qs('#cards').before(tools);search.oninput=filter.onchange=sort.onchange=pending.onchange=renderQuotes;
  const scene=qs('#scene');window.addEventListener('pointermove',e=>{if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;const x=(e.clientX/window.innerWidth-.5)*9,y=(e.clientY/window.innerHeight-.5)*9;scene.style.setProperty('--x',x.toFixed(1)+'px');scene.style.setProperty('--y',y.toFixed(1)+'px');},{passive:true});
  const quoteFilter=qs('#quote-filter');
  quoteFilter.add(new Option('Propostas aguardando decisão','decision'));

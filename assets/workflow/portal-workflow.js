@@ -67,6 +67,14 @@
     parent.append(details);
     return details;
   }
+  function facts(parent,entries){
+    const list=node('dl',undefined,'workflow-facts');
+    for(const [label,value] of entries){
+      if(value===undefined||value===null||value==='')continue;
+      list.append(node('dt',label),node('dd',String(value)));
+    }
+    parent.append(list);
+  }
   function offerLabel(offer){
     return offer.option.name+' · '+money(offer.totalCents);
   }
@@ -135,11 +143,14 @@
     function render(data,catalogWasOpen){
       content.replaceChildren();
       const context=data.briefing;
-      content.append(node('p',[context.destination,date(context.startDate)+' a '+date(context.endDate),
-        (context.people||'A definir')+' participantes',context.rooms+' quartos informados'].join(' · ')));
-      if(context.budget||context.hotelPreferences?.length)content.append(node('p',[context.budget?'Investimento deste evento: '+context.budget:'',...(context.hotelPreferences||[])].filter(Boolean).join(' · ')));
+      facts(content,[
+        ['Destino',context.destination||'A definir'],['Período',date(context.startDate)+' a '+date(context.endDate)],
+        ['Participantes',context.people||'A definir'],...(context.hotel?[['Quartos',context.rooms]]:[]),
+        ['Investimento',context.budget],['Hospedagem',(context.hotelPreferences||[]).join(' · ')]
+      ]);
       if(data.preferences.budget||data.preferences.criteria){
-        content.append(node('p',[data.preferences.budget?'Investimento desejado: '+data.preferences.budget:'',data.preferences.criteria].filter(Boolean).join(' · ')));
+        const preferences=disclosure(content,'Preferências da empresa');
+        facts(preferences,[['Investimento',data.preferences.budget],['Contratação',data.preferences.criteria]]);
       }
       const catalog=disclosure(content,internal?'Catálogo e novas solicitações':'Escolher hotéis');
       catalog.classList.add('supplier-catalog');
@@ -184,9 +195,9 @@
             if(supplier.demo)card.append(node('p','Cadastro fictício de demonstração.'));
             if(!internal)card.append(node('p','Valores e disponibilidade mediante cotação.'));
             const details=disclosure(card,'Ver estrutura e localização');
-            details.append(node('p',supplier.address||'Endereço a confirmar'),node('p',supplier.description||'Estrutura a confirmar'),
-              node('p',supplier.capacity?'Capacidade informada: '+supplier.capacity+' pessoas. Confirme a configuração da sala.':'Capacidade a confirmar'),
-              node('p','Fonte: '+supplier.source+(supplier.checkedAt?' · '+date(supplier.checkedAt):'')));
+            facts(details,[['Endereço',supplier.address||'A confirmar'],['Estrutura',supplier.description||'A confirmar'],
+              ['Capacidade',supplier.capacity?supplier.capacity+' pessoas · configuração a confirmar':'A confirmar'],
+              ['Fonte',supplier.source],['Verificado em',supplier.checkedAt?date(supplier.checkedAt):'']]);
             map(details,supplier);
             if(internal){
               if(supplier.contact)details.append(node('p','Contato: '+supplier.contact));
@@ -365,8 +376,11 @@
   }
   async function administration(parent,api){
     const root=group(parent,'administration','Administração');
+    const navigation=node('nav',undefined,'administration-nav');
+    navigation.setAttribute('aria-label','Áreas da administração');
     const content=node('div');
-    root.append(content);
+    root.append(navigation,content);
+    let activeArea='admin-companies';
     async function reload(){
       const data=await api('/api/administration');
       content.replaceChildren();
@@ -426,14 +440,30 @@
         }
       }else grants.append(node('p','Atribuições ficam disponíveis quando houver cotações.'));
       const audit=disclosure(content,'Histórico de administração');
+      audit.id='admin-audit';
       const actions={company:'Empresa atualizada',user:'Usuário atualizado',grant:'Permissão por cotação alterada',assign:'Responsável atualizado'};
       for(const item of data.audit)audit.append(node('p',date(item.created_at)+' · '+item.name+' · '+actions[item.action]));
+      navigation.replaceChildren();
+      const areas=[['admin-companies','Empresas'],['admin-users','Usuários'],['admin-grants','Atribuições'],['admin-audit','Histórico']];
+      const selectArea=id=>{
+        activeArea=id;
+        for(const [key] of areas)content.querySelector('#'+key).hidden=key!==id;
+        for(const button of navigation.children)button.setAttribute('aria-pressed',String(button.dataset.area===id));
+        audit.open=id==='admin-audit';
+      };
+      for(const [id,label] of areas){
+        const button=action(label,()=>selectArea(id));
+        button.dataset.area=id;
+        button.setAttribute('aria-controls',id);
+        navigation.append(button);
+      }
+      selectArea(activeArea);
     }
     try{await reload();}catch(error){content.append(node('p',error.message));}
   }
   function progress(parent,q,user,api,reload){
-    const root=group(parent,'request-progress','Visão geral');
-    root.append(node('strong',q.progress.label),node('p',q.progress.nextAction,'progress-next-action'));
+    const root=group(parent,'request-progress','Acompanhamento');
+    root.append(node('p',q.progress.nextAction,'progress-next-action'));
     if(q.progress.lastUpdated)root.append(node('p','Última atualização: '+date(q.progress.lastUpdated)));
     const url='/api/quotes/'+q.id+'/workflow';
     const complement=q.progress.complement;

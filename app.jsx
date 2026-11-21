@@ -1019,7 +1019,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
 
         {/* Faturamento de Extras */}
         <div>
-          <SectionTitle title="Forma de Faturamento de Extras" subtitle="Opcional. Se não escolher, ficará a definir com o consultor. Indique quem pagará os consumos extras." />
+          <SectionTitle title="Pagamento de extras" subtitle="Opcional. Se não escolher, ficará a definir com o consultor. Indique quem pagará os consumos extras." />
           <div className="flex flex-wrap gap-2.5">
             {['Faturamento total de Extras', 'Pagamento direto pelo viajante/convidado'].map(opt => (
               <button
@@ -1503,7 +1503,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
         {guidanceOption('hospedagemGuidance', 'a hospedagem')}
         {/* Padrão com título em destaque */}
         <div>
-          <SectionTitle title="Padrão de Hotelaria Desejado" subtitle="Selecione a categoria de hospedagem pretendida" />
+          <SectionTitle title="Padrão de Hotelaria Desejado"  />
           <div className="flex flex-wrap gap-2.5">
             {[GUIDANCE, 'Hotel 3 ou 4 estrelas – Padrão Corporativo', 'Luxo 5 estrelas', 'Resort / Centro de Convenções'].map(opt => (
               <button
@@ -1523,7 +1523,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
 
         {/* Localização com título em destaque */}
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-          <SectionTitle title="Preferência de Localização do Hotel" subtitle="Região de interesse para hospedagem dos participantes" />
+          <SectionTitle title="Preferência de Localização do Hotel"  />
           <div className="flex flex-wrap gap-2">
             {[GUIDANCE, 'Próximo ao Local do Evento', 'Próximo ao Aeroporto', 'Outro'].map(opt => (
               <button
@@ -1631,7 +1631,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
 
         {/* Regime de Alimentação com título em destaque */}
         <div>
-          <SectionTitle title="Regime de Alimentação no Hotel" subtitle="Refeições incluídas na diária do hotel" />
+          <SectionTitle title="Refeições no hotel" subtitle="Refeições incluídas na diária do hotel" />
           <div className="flex flex-wrap gap-2">
             {[GUIDANCE, 'Apenas Café da Manhã', 'Meia Pensão (Café + Jantar)', 'Pensão Completa'].map(opt => (
               <button
@@ -1652,7 +1652,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
         {/* Rooming List com título em destaque */}
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
           <div className="flex items-center justify-between mb-1">
-            <SectionTitle title="Rooming List Preliminar" icon="clipboard-list" />
+            <SectionTitle title="Lista preliminar de hóspedes" icon="clipboard-list" />
             <span className="text-[11px] font-semibold text-slate-500 bg-slate-200/60 px-2.5 py-0.5 rounded-full">
               Não obrigatório
             </span>
@@ -1726,7 +1726,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
 
           {/* FORMATO DA SALA */}
           <div>
-            <SectionTitle title="Formato / Montagem da Sala Principal" subtitle="Escolha o layout desejado para as cadeiras e mesas:" />
+            <SectionTitle title="Formato / Montagem da Sala Principal"  />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
               {[
                 { id: 'Auditório (fileiras de cadeiras)', label: 'Auditório', desc: 'Fileiras de cadeiras' },
@@ -1757,7 +1757,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
 
           {/* EQUIPAMENTOS AV */}
           <div>
-            <SectionTitle title="Equipamentos Audiovisuais (AV)" subtitle="Recursos técnicos para palestras e projeção:" />
+            <SectionTitle title="Equipamentos Audiovisuais (AV)"  />
             <div className="flex flex-wrap gap-2">
               {['Projetor & Telão', 'Microfones Sem Fio', 'Sonorização Completa', 'Iluminação Cênica', 'Tradução Simultânea', 'Gravação / Transmissão Online'].map(av => (
                 <PillOption
@@ -1782,7 +1782,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
           <SectionTitle title="Alimentos & Bebidas (Gastronomia)" icon="utensils" />
 
           <div>
-            <SectionTitle title="Serviços Gastronômicos Desejados" subtitle="Cardápios corporativos para o evento:" />
+            <SectionTitle title="Serviços de alimentação"  />
             <div className="flex flex-wrap gap-2">
               {['Coffee Break', 'Almoço Servido / Buffet', 'Jantar de Confraternização', 'Coquetel de Boas-Vindas', 'Welcome Drink'].map(catering => (
                 <PillOption
@@ -1840,7 +1840,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
         {guidanceOption('transfersGuidance', 'os transfers')}
         <div className="form-section space-y-5">
           <div>
-            <SectionTitle title="Trechos de Transfer Solicitados" subtitle="Selecione as rotas de transporte necessárias:" />
+            <SectionTitle title="Trechos de Transfer Solicitados"  />
             <div className="flex flex-wrap gap-2.5">
               {[
                 'Aeroporto ↔ Hotel',
@@ -2102,7 +2102,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
 
           {/* Observações Gerais */}
           <div>
-            <SectionTitle title="Observações Gerais Complementares" />
+            <SectionTitle title="Observações do evento" />
             <textarea
               value={reviewForm.generalNotes}
               onChange={e => set('generalNotes', e.target.value)}
@@ -2265,7 +2265,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
           <h1 className="font-serif font-normal text-3xl sm:text-4xl text-white tracking-tight mt-3 mb-2">
             {form.eventName || 'Seu próximo encontro'}
           </h1>
-          <p className="summary-caption text-xs text-slate-300">Os detalhes do seu evento, reunidos e conectados aqui.</p>
+
           <button className="summary-toggle" type="button" aria-expanded={summaryOpen} aria-controls="planning-details" onClick={() => setSummaryOpen(open => !open)}>{summaryOpen ? 'Recolher resumo −' : 'Ver e editar resumo +'}</button>
           <div id="planning-details" className="summary-body" data-open={summaryOpen}>
             <button type="button" className="summary-item" onClick={() => editStep('evento', 'event-destination', 'Destino')}><span>Destino <small>Editar <PencilIcon /></small></span><strong>{form.destination || 'Onde será o encontro?'}</strong></button>

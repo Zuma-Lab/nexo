@@ -40,7 +40,7 @@
   }
   function rerender(){data.version++;confirmed=false;if(!inputEditing)render();}
   function move(next){if(view==='editor')editorStep=next;else clientStep=next;section='details';optionIndex=0;render();window.scrollTo({top:0,behavior:'instant'});$('#screen-title')?.focus({preventScroll:true});}
-  function screen(main,label,title,description){main.append(el('span',label,'eyebrow'));const h=el('h1',title);h.id='screen-title';h.tabIndex=-1;main.append(h);if(description)main.append(el('p',description,'intro'));}
+  function screen(main,label,title,description){main.append(el('span',label,'eyebrow'));const h=el('h1',title);h.id='screen-title';h.tabIndex=-1;main.append(h);if(description){if(view==='editor'){const help=el('details',undefined,'screen-help');help.append(el('summary','Orientações de preenchimento'),el('p',description,'intro'));main.append(help);}else main.append(el('p',description,'intro'));}}
   function smallTotals(target,result,label='Total do grupo'){
     if(!result.valid){target.append(el('p',result.error,'error'));return;}
     const d=el('dl',undefined,'totals');
@@ -68,7 +68,7 @@
     if(editorStep===total-1){
       screen(main,'CONSULTOR · REVISÃO','Confira antes de apresentar','Cada alternativa tem seu próprio preço. O cliente escolherá uma opção em cada serviço.');
       for(const g of data.groups){const card=el('section',undefined,'option');card.append(el('h2',g.name));for(const o of g.options){const r=calculate(o),line=el('div',undefined,'review-choice');line.append(el('span',o.name),el('strong',r.valid?(r.pending?'A confirmar · subtotal '+money(r.total):money(r.total)+' para o grupo'):'Preenchimento pendente'));card.append(line);}card.append(button('Editar '+g.name.toLowerCase(),()=>move(data.groups.indexOf(g)+1),'link-button'));main.append(card);}
-      main.append(el('p','Cardápio e outras moedas estão previstos para etapas futuras.','notice'));save(main);
+      save(main);
       const bar=el('div',undefined,'screen-footer');bar.append(button(' Voltar',()=>move(editorStep-1)),button('Ver como cliente',()=>switchView('client'),'primary'));main.append(bar);return;
     }
     const g=data.groups[editorStep-1];optionIndex=Math.min(optionIndex,g.options.length-1);const o=g.options[optionIndex];
@@ -89,7 +89,7 @@
     if(section==='details'){
       input(grid,'Título da opção',o.name,v=>o.name=v);input(grid,'Fornecedor',o.supplier,v=>o.supplier=v);
       const desc=el('div',undefined,'wide');input(desc,g.service==='air'?'Itinerário, horários, conexões e bagagem':g.service==='hotel'?'Localização, regime e horários do hotel':'Descrição do serviço',o.description,v=>o.description=v,'textarea');grid.append(desc);card.append(grid);
-      if(g.service==='food')card.append(el('p','O detalhamento de cardápio será desenvolvido em uma próxima etapa.','notice'));
+
       card.append(button('Preencher valores ',()=>{section='prices';render();},'small-button'));
     }else if(section==='prices'){
       if(g.service==='air')input(grid,'Passageiros desta opção',o.rows.find(x=>x.state==='priced')?.quantity||'',v=>{for(const r of o.rows){r.quantity=v;r.units='1';}rerender();},'number');
