@@ -303,6 +303,9 @@
   }
   function comparison(parent,data,q,filters,onNavigate){
     const section=group(parent,'request-budget','Comparativo de fornecedores');
+    const prepare=node('a',data.closed?'Consultar proposta':'Preparar proposta','primary budget-proposal-link');
+    prepare.href='/assets/proposal/index.html?quote='+encodeURIComponent(q.id);
+    section.append(prepare);
     const responses=data.requests.filter(request=>request.state!=='cancelled'&&request.comparison);
     if(!responses.length){
       section.append(node('p','As respostas registradas aparecem aqui assim que forem recebidas.'));

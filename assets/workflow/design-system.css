@@ -8,6 +8,12 @@
   --ui-accent: #fce300;
 }
 body { font-family: var(--font-body), sans-serif; }
+.budget-proposal-link, .overview-proposal-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 12px 18px; margin: 12px 0 20px; background: var(--theme-primary) !important; color: white !important; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; }
+.proposal-steps { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 0 22px; margin: 0 0 24px; border-bottom: 1px solid var(--ui-line); }
+.proposal-steps .proposal-step { display: inline-flex; align-items: center; gap: 9px; background: white; color: var(--ui-muted); border: 1px solid var(--ui-line); border-radius: 6px; padding: 10px 12px; font-size: 13px; text-align: left; }
+.proposal-steps .proposal-step[aria-current=step] { background: var(--theme-accentSoft); border-color: var(--theme-primary); color: var(--theme-primary); font-weight: 600; }
+.proposal-step-number { display: grid; place-items: center; flex-shrink: 0; width: 23px; height: 23px; border-radius: 50%; background: var(--theme-surface); color: var(--theme-primary); font-size: 12px; }
+@media(max-width:600px) { .proposal-steps { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }.proposal-steps .proposal-step { min-width: 0; overflow-wrap: anywhere; } }
 [hidden] { display: none !important; }
 /* Content hierarchy across the existing application. */
 .workspace h1, .request-panel h1 { font-weight: 600; }

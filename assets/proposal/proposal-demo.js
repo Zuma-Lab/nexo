@@ -316,6 +316,21 @@
     main.replaceChildren();
     $('#editor-tab').setAttribute('aria-pressed',String(view==='editor'));
     $('#client-tab').setAttribute('aria-pressed',String(view==='client'));
+    if(view==='editor'){
+      const steps=el('nav',undefined,'proposal-steps');
+      steps.setAttribute('aria-label','Etapas de preparação da proposta');
+      const labels=['Dados da proposta',...data.groups.map(group=>group.name),'Revisão e publicação'];
+      for(const [index,label] of labels.entries()){
+        const step=button(label,()=>move(index),'proposal-step');
+        step.setAttribute('aria-label','Etapa '+(index+1)+': '+label);
+        const number=el('span',String(index+1),'proposal-step-number');
+        number.setAttribute('aria-hidden','true');
+        step.prepend(number);
+        if(index===editorStep)step.setAttribute('aria-current','step');
+        steps.append(step);
+      }
+      main.append(steps);
+    }
     if(quoteId){
       const banner=el('section',undefined,'live-version-banner');
       const current=live?.versions?.find(version=>version.version===viewVersion);

@@ -201,6 +201,11 @@
       overviewMain.classList.toggle('has-tasks',!!d.progress?.tasks?.length);
     }
     if(d.progress)QuoteWorkflow.progress(overviewMain,d,currentUser,api,reloadDetail);
+    if(consultant){
+      const prepare=proposalLink(d);
+      prepare.classList.add('overview-proposal-link');
+      overviewMain.append(prepare);
+    }
     const proposals=QuoteWorkflow.group(views.get('proposals').section,'request-proposals','Propostas');
     if(d.commercial?.version)proposals.append(el('p','proposal-current','Versão publicada: v'+d.commercial.version));
     if(d.commercial?.acceptedVersion)proposals.append(el('p',null,'Última versão aprovada: v'+d.commercial.acceptedVersion));
