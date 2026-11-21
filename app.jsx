@@ -409,6 +409,11 @@ class ErrorBoundary extends React.Component {
    APLICAÇÃO PRINCIPAL: APP
    ═══════════════════════════════════════════════════════════ */
 function App() {
+  const [creatingBriefing, setCreatingBriefing] = useState(
+    () => !!DEMO_USER && new URLSearchParams(location.search).get('novo') === '1'
+  );
+  const [newEventName, setNewEventName] = useState('');
+  const [creationError, setCreationError] = useState('');
   const [form, setForm] = useState(() => {
     try {
       const saved = DEMO_USER ? localStorage.getItem(DRAFT_KEY) : null;
@@ -493,7 +498,7 @@ function App() {
 
   // Salvar rascunho isolado por empresa.
   useEffect(() => {
-    if (!DEMO_USER) return;
+    if (!DEMO_USER || creatingBriefing) return;
     setDraftStatus('saving');
     const t = setTimeout(() => {
       try {
@@ -504,7 +509,7 @@ function App() {
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [form, legacyDraft]);
+  }, [form, legacyDraft, creatingBriefing]);
 
   useEffect(() => {
     const card = quoteCardRef.current;
@@ -2130,6 +2135,56 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
   /* ═══════════════════════════════════════════════════════════
      LAYOUT GERAL
      ═══════════════════════════════════════════════════════════ */
+  if (creatingBriefing) {
+    const hasExistingDraft = form.eventName || form.destination ||
+      form.svcAereo || form.svcHospedagem || form.svcEspacoAlimentacao || form.svcTransfers;
+    const finishCreation = () => {
+      const url = new URL(location.href);
+      url.searchParams.delete('novo');
+      history.replaceState(null, '', url);
+      setCreatingBriefing(false);
+    };
+    const createBriefing = event => {
+      event.preventDefault();
+      const name = newEventName.trim();
+      if (!name) { setCreationError('Informe o nome do evento.'); return; }
+      if (hasExistingDraft && !window.confirm('Substituir o preenchimento deste navegador por uma nova cotação? O rascunho salvo na sua conta continuará disponível no painel.')) return;
+      const next = { ...INITIAL_STATE, eventName: name, companyName: DEMO_USER.companyName,
+        cnpj: DEMO_USER.companyCnpj || '', requesterName: DEMO_USER.name, email: DEMO_USER.email };
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(next));
+        sessionStorage.removeItem(ATTEMPT_KEY);
+      } catch {
+        setCreationError('Não foi possível salvar o início do briefing neste navegador. Tente novamente.');
+        return;
+      }
+      submissionAttempt.current = null;
+      setLegacyDraft(false);
+      setForm(next);
+      setStepIdx(0);
+      finishCreation();
+    };
+    return (
+      <div className="briefing-create-shell">
+        <header><img src={BRAND.logoDark} alt={BRAND.name} /><span>{DEMO_USER.companyName}</span></header>
+        <main className="briefing-create-panel">
+          <a href="/portal.html">Voltar às minhas cotações</a>
+          <h1>Vamos começar seu evento</h1>
+          <p>Dê um nome ao pedido. A seguir, você poderá escolher os serviços e preencher o briefing.</p>
+          <form onSubmit={createBriefing}>
+            <label htmlFor="new-event-name">Nome do evento</label>
+            <input id="new-event-name" value={newEventName} onChange={event => {setNewEventName(event.target.value);setCreationError('');}}
+              required maxLength={180} autoFocus placeholder="Ex. Convenção comercial 2027"
+              aria-describedby={creationError ? 'briefing-creation-error' : undefined} />
+            <p>Aéreo, hospedagem, salas e alimentação, transfers. Selecione somente o que precisar na próxima etapa.</p>
+            <button type="submit">Continuar para o briefing</button>
+            {hasExistingDraft && <button type="button" className="briefing-resume" onClick={finishCreation}>Retomar preenchimento anterior{form.eventName ? ' · ' + form.eventName : ''}</button>}
+            <p id="briefing-creation-error" role="alert">{creationError}</p>
+          </form>
+        </main>
+      </div>
+    );
+  }
   if (!started) return (
     <div className={"hero-scene welcome-scene min-h-screen text-white relative overflow-hidden" + (launching ? " is-launching" : "")}>
       <div className="welcome-background" aria-hidden="true">

@@ -364,7 +364,7 @@
   const url=new URL(location.href);
   if(user&&url.searchParams.get('acao')==='nova-cotacao'){
     if(user.role==='client'){
-      location.replace('/formulario.html');
+      location.replace('/formulario.html?novo=1');
       return;
     }
     url.searchParams.delete('acao');

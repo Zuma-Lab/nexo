@@ -8,6 +8,20 @@
   --ui-accent: #fce300;
 }
 body { font-family: var(--font-body), sans-serif; }
+.briefing-create-shell { min-height: 100svh; background: var(--theme-surface); color: var(--theme-primary); }
+.briefing-create-shell > header { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px max(20px,5vw); background: var(--theme-field); border-bottom: 1px solid var(--theme-disabled); }
+.briefing-create-shell > header img { width: 155px; height: auto; }
+.briefing-create-shell > header span { font-size: 13px; }
+.briefing-create-panel { max-width: 640px; margin: auto; padding: 48px 24px; }
+.briefing-create-panel > a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; font-size: 14px; text-underline-offset: 4px; }
+.briefing-create-panel h1 { margin: 26px 0 12px; font-size: clamp(27px,4vw,36px); line-height: 1.2; font-weight: 600; letter-spacing: -.03em; }
+.briefing-create-panel p { color: var(--theme-muted); font-size: 14px; line-height: 1.7; margin: 12px 0; }
+.briefing-create-panel form { margin-top: 28px; display: grid; gap: 12px; }
+.briefing-create-panel label { font-size: 14px; font-weight: 600; }
+.briefing-create-panel input { width: 100%; padding: 14px; border: 1px solid var(--theme-border); background: var(--theme-field); color: inherit; border-radius: 7px; font-size: 16px; }
+.briefing-create-panel button { justify-self: start; min-height: 46px; padding: 12px 20px; border-radius: 7px; background: var(--theme-primary); color: var(--theme-field); font-size: 14px; }
+.briefing-create-panel .briefing-resume { background: transparent; color: var(--theme-primary); border: 1px solid var(--theme-border); text-align: left; overflow-wrap: anywhere; }
+.briefing-create-panel #briefing-creation-error { color: var(--theme-legacy-color-30); }
 button, input, select, textarea { font: inherit; }
 button, a { transition: background .15s, color .15s; }
 button { letter-spacing: normal; }
