@@ -394,6 +394,10 @@
   renderClientFilters();
   loadVersion++;
   document.body.classList.toggle('is-consultant',consultant);
+  document.body.classList.toggle('is-client',user?.role==='client');
+  qs('#client-sidebar').classList.toggle('hidden',user?.role!=='client');
+  qs('#client-company').textContent=user?.companyName||'';
+  qs('#client-person').textContent=user?.name||'';
   document.body.classList.toggle('is-authenticated',!!user);
   qs('#login').classList.toggle('hidden',!!user);
   qs('#workspace').classList.toggle('hidden',!user);
@@ -413,7 +417,7 @@
   preferences.textContent=user.preferences?[user.preferences.budget?'Investimento desejado: '+user.preferences.budget:'',user.preferences.criteria].filter(Boolean).join(' · '):'';
   preferences.hidden=!preferences.textContent;
   qs('#workspace-role').textContent=consultant?'Consultoria':'PORTAL DO CLIENTE · '+user.companyName;
-  qs('#greeting').textContent=consultant?'Central de cotações':'Olá, '+user.name.split(' ')[0]+'.';
+  qs('#greeting').textContent=consultant?'Central de cotações':'Minhas cotações';
   qs('#workspace-lead').textContent=consultant?'':'Suas cotações, em um só lugar.';
   qs('#workspace-lead').hidden=consultant;
   qs('#client-hero').classList.toggle('hidden',consultant);

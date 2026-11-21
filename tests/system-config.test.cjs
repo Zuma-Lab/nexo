@@ -16,7 +16,7 @@ test('identity and theme changes reach the browser without changing business rul
     addEventListener: (event, fn) => { if (event === 'DOMContentLoaded') ready = fn; },
     querySelectorAll: selector => selector === '[data-brand-text]' ? [textNode] : [imageNode]
   };
-  const source = original.replace("name: 'Projeto Eventos'", "name: 'Marca de teste'").replace("primary: '#12254F'", "primary: '#245544'");
+  const source = original.replace("name: 'NEXO'", "name: 'Marca de teste'").replace("primary: '#214E49'", "primary: '#245544'");
   const context = vm.createContext({ document });
   vm.runInContext(source, context);
   ready();
