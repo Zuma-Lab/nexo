@@ -18,9 +18,12 @@
   let data=initial,choices={},view='client',editorStep=0,clientStep=0,section='details',optionIndex=0,confirmed=false,editingChoice=false,inputEditing=false;
   const quoteId=new URLSearchParams(location.search).get('quote');
   let live=null,liveUser=null,draftRevision=0,latestVersion=0,viewVersion=0,liveLocked=false,busy=false;
+  let savedSignature='',saveMessage='',saving=false;
+  const draftPreview=()=>view==='client'&&(!quoteId||liveUser?.role==='consultant');
+  const hasChanges=()=>savedSignature!==''&&JSON.stringify(data)!==savedSignature;
   const commercialUrl=()=>'/api/quotes/'+quoteId+'/commercial';
   async function remote(action,body){const r=await fetch(commercialUrl()+action,{method:body?'POST':'GET',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});const result=await r.json();if(!r.ok)throw Error(result.error||'Falha na proposta.');return result;}
-  async function saveRemote(){const r=await remote('/draft',{expectedRevision:draftRevision,data});draftRevision=r.revision;}
+  async function saveRemote(snapshot=data){const r=await remote('/draft',{expectedRevision:draftRevision,data:snapshot});draftRevision=r.revision;}
   let key='event_system_proposal_prototype_brl_steps_v3';
   // Rascunhos anteriores, inclusive em outras moedas, ficam preservados na chave v1.
   try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.schema===3&&saved.data?.groups?.length)data=saved.data;}catch{}
@@ -30,27 +33,72 @@
   const cents=s=>Math.round(Number(String(s).replace(',','.'))*100);
   const date=s=>s?s.split('-').reverse().join('/'):'A confirmar';
   function button(text,fn,cls='small-button'){const b=el('button',text,cls);b.type='button';b.onclick=fn;return b;}
+  let fieldId=0;
   function input(parent,label,value,change,type='text',items){
-    const wrap=el('label',label),c=el(items?'select':type==='textarea'?'textarea':'input');
+    const wrap=el('label'),caption=el('span',label),c=el(items?'select':type==='textarea'?'textarea':'input');
+    caption.id='proposal-field-label-'+(++fieldId);c.setAttribute('aria-labelledby',caption.id);wrap.append(caption);
     if(items)for(const [v,text]of items){const o=el('option',text);o.value=v;c.append(o);}else if(type!=='textarea'){c.type=type;if(type==='number'){c.min='0';c.step='any';}}
     c.value=value??'';
     // Mantém o rascunho atualizado durante a digitação, sem recriar o campo a cada tecla.
-    if(!items)c.oninput=()=>{inputEditing=true;try{change(c.value);confirmed=false;}finally{inputEditing=false;}};
-    c.onchange=()=>{inputEditing=true;try{change(c.value);confirmed=false;}finally{inputEditing=false;}if(items)render();};wrap.append(c);parent.append(wrap);return c;
+    const update=()=>{inputEditing=true;try{change(c.value);confirmed=false;saveMessage='';}finally{inputEditing=false;}updateEditorSummary();updateSaveState();};
+    if(!items)c.oninput=update;
+    c.onchange=()=>{update();if(items)render();};wrap.append(c);parent.append(wrap);return c;
   }
-  function rerender(){data.version++;confirmed=false;if(!inputEditing)render();}
+  function rerender(){data.version++;confirmed=false;saveMessage='';if(!inputEditing)render();}
   function move(next){if(view==='editor')editorStep=next;else clientStep=next;section='details';optionIndex=0;render();window.scrollTo({top:0,behavior:'instant'});$('#screen-title')?.focus({preventScroll:true});}
   function screen(main,label,title,description){main.append(el('span',label,'eyebrow'));const h=el('h1',title);h.id='screen-title';h.tabIndex=-1;main.append(h);if(description){if(view==='editor'){const help=el('details',undefined,'screen-help');help.append(el('summary','Orientações de preenchimento'),el('p',description,'intro'));main.append(help);}else main.append(el('p',description,'intro'));}}
   function smallTotals(target,result,label='Total do grupo'){
     if(!result.valid){target.append(el('p',result.error,'error'));return;}
     const d=el('dl',undefined,'totals');
-    for(const [name,value]of [['Serviços',result.base],['Taxas adicionais do fornecedor',result.tax],['Agenciamento',result.fee],[result.pending?'Subtotal conhecido':label,result.total]])d.append(el('dt',name),el('dd',money(value)));
+    const lines=[['Serviços',result.base],['Taxas adicionais do fornecedor',result.tax],['Agenciamento',result.fee]];
+    if(label)lines.push([result.pending?'Subtotal conhecido':label,result.total]);
+    for(const [name,value]of lines)d.append(el('dt',name),el('dd',money(value)));
     target.append(d);if(result.pending)target.append(el('p','Valor final a confirmar. Pendências não são consideradas gratuitas.','error'));
   }
   function save(main){
-    const feedback=el('p',undefined,'version');feedback.setAttribute('role','status');
-    const saveButton=button(quoteId?'Salvar rascunho na conta':'Salvar rascunho',async()=>{if(busy)return;busy=true;saveButton.disabled=true;try{if(quoteId){await saveRemote();feedback.textContent='Rascunho salvo. O cliente continua vendo somente a versão publicada.';}else{localStorage.setItem(key,JSON.stringify({schema:3,data}));feedback.textContent='Rascunho salvo somente neste navegador.';}}catch(e){feedback.textContent=e.message;}finally{busy=false;saveButton.disabled=false;}},'link-button');main.append(saveButton,feedback);
-    if(quoteId&&editorStep===data.groups.length+1){const publish=button('Publicar nova versão',async()=>{if(busy||!window.confirm('Publicar esta versão para análise do cliente? A versão e os aceites anteriores serão preservados.'))return;busy=true;publish.disabled=true;try{await saveRemote();const r=await remote('/publish',{expectedRevision:draftRevision,expectedVersion:latestVersion});latestVersion=r.version;live=await remote('');$('#content .live-version-banner strong').textContent='Rascunho privado · última publicação: v'+latestVersion;feedback.textContent='Versão '+r.version+' publicada para o cliente.';}catch(e){feedback.textContent=e.message;}finally{busy=false;publish.disabled=false;}},'primary');main.append(publish);}
+    const toolbar=$('#proposal-actions');toolbar.replaceChildren();
+    const feedback=el('p',undefined,'save-state');feedback.id='save-state';feedback.setAttribute('role','status');
+    const saveButton=button(quoteId?'Salvar rascunho na conta':'Salvar rascunho',async()=>{
+      if(busy)return;busy=true;saving=true;updateSaveState();
+      const snapshot=structuredClone(data);
+      try{if(quoteId)await saveRemote(snapshot);else localStorage.setItem(key,JSON.stringify({schema:3,data:snapshot}));savedSignature=JSON.stringify(snapshot);saveMessage=hasChanges()?'Há alterações posteriores ainda não salvas.':quoteId?'Rascunho salvo na conta.':'Salvo neste navegador.';}
+      catch(e){saveMessage=e.message;}
+      finally{busy=false;saving=false;updateSaveState();}
+    });saveButton.dataset.saveAction='true';
+    const review=editorStep===data.groups.length+1;
+    const publish=button(quoteId&&review?'Publicar nova versão':'Revisar proposta',async()=>{
+      if(!quoteId||!review){move(data.groups.length+1);return;}
+      if(busy||!window.confirm('Publicar esta versão para análise do cliente? A versão e os aceites anteriores serão preservados.'))return;
+      busy=true;saving=true;updateSaveState();
+      const snapshot=structuredClone(data);
+      try{
+        await saveRemote(snapshot);savedSignature=JSON.stringify(snapshot);
+        const r=await remote('/publish',{expectedRevision:draftRevision,expectedVersion:latestVersion});
+        latestVersion=r.version;live=await remote('');saveMessage='Versão '+r.version+' publicada para o cliente.';render();
+      }catch(e){saveMessage=e.message;}
+      finally{busy=false;saving=false;updateSaveState();}
+    },'primary');publish.dataset.saveAction='true';
+    toolbar.append(feedback,saveButton,publish);updateSaveState();
+  }
+  function updateSaveState(){
+    const status=$('#save-state');
+    if(status)status.textContent=saving?'Salvando…':saveMessage||(hasChanges()?'Alterações não salvas':quoteId?'Rascunho privado':'Exemplo neste navegador');
+    for(const control of document.querySelectorAll('[data-save-action]'))control.disabled=saving||!!(quoteId&&live&&!live.open);
+    const title=$('#proposal-event');if(title)title.textContent=data.event||'Proposta sem título';
+    if(quoteId&&liveUser){$('.proposal-caption').textContent='Proposta comercial · '+(data.people||'Quantidade a definir')+' participantes'+(data.validUntil?' · validade: '+date(data.validUntil):' · validade a definir');}
+  }
+  function updateEditorSummary(){
+    const target=$('#editor-price-summary');if(!target||view!=='editor')return;
+    const group=data.groups[editorStep-1],o=group?.options[optionIndex];if(!o)return;
+    const result=calculate(o);target.replaceChildren(el('span','ALTERNATIVA EM EDIÇÃO','eyebrow'),el('h2',o.name||'Sem título'),el('p',o.supplier||'Fornecedor a informar','supplier-detail'));
+    const value=el('div',undefined,'editor-summary-total');
+    value.append(el('span',result.valid&&!result.pending?'Total desta alternativa':result.valid?'Subtotal conhecido':'Preenchimento pendente'),el('strong',result.valid?money(result.total):'A conferir'));target.append(value);
+    smallTotals(target,result,null);
+    if(group.service==='air'&&result.valid&&!result.pending){const unit=perPerson(o);if(unit.valid){const each=el('div',undefined,'unit-hero');each.append(el('span','Por pessoa'+(unit.approximate?' · aproximado':'')),el('strong',money(unit.total)),el('small',unit.people+' passageiros'));target.append(each);}}
+    const priced=o.rows.filter(x=>x.state==='priced');
+    const exceeds=group.service==='hotel'?priced.reduce((n,x)=>n+Number(x.quantity)*Number(x.occupancy||1),0)>Number(data.people):group.service==='air'&&Number(priced[0]?.quantity)>Number(data.people);
+    if(Number(data.people)>0&&exceeds)target.append(el('p','Confira a quantidade: esta opção atende mais pessoas que o total informado para o evento.','notice'));
+    target.append(el('p','O cliente escolhe uma alternativa por serviço. Este valor não soma as outras opções.','summary-caption'));
   }
   function pager(main,step,total,nextLabel,canAdvance=true){
     const footer=el('div',undefined,'screen-footer');
@@ -72,7 +120,7 @@
       const bar=el('div',undefined,'screen-footer');bar.append(button(' Voltar',()=>move(editorStep-1)),button('Ver como cliente',()=>switchView('client'),'primary'));main.append(bar);return;
     }
     const g=data.groups[editorStep-1];optionIndex=Math.min(optionIndex,g.options.length-1);const o=g.options[optionIndex];
-    screen(main,'CONSULTOR · '+g.name.toUpperCase(),'Prepare as opções de '+g.name.toLowerCase(),'Uma alternativa de cada vez. O cliente verá os valores unitários e poderá comparar as opções.');
+    screen(main,'SERVIÇO '+editorStep+' DE '+data.groups.length,g.name,'Uma alternativa de cada vez. O cliente verá os valores unitários e poderá comparar as opções.');
     const optionBar=el('div',undefined,'option-switch');
     input(optionBar,'Alternativa em edição',o.id,v=>{optionIndex=g.options.findIndex(x=>x.id===v);render();},'text',g.options.map(x=>[x.id,x.name]));
     optionBar.append(button('+ Nova alternativa',()=>{g.options.push(option(crypto.randomUUID(),'Nova alternativa','',g.service==='air'?[row('Tarifa aérea','','30','1',{category:'fare'}),row('Taxa de embarque','','30','1',{category:'boarding'})]:[row('Novo item','','','1',{unit:'unidades'})]));optionIndex=g.options.length-1;section='details';rerender();}));if(g.options.length>1){
@@ -80,7 +128,7 @@
         if(!window.confirm('Remover esta alternativa do rascunho?'))return;
         g.options.splice(optionIndex,1);
         optionIndex=0;
-        render();
+        rerender();
       },'link-button'));
     }
     main.append(optionBar);
@@ -114,11 +162,11 @@
         block.append(fields,button('Remover item',()=>{o.rows.splice(i,1);rerender();},'link-button'));card.append(block);
       });
       card.append(button(g.service==='hotel'?'+ Adicionar acomodação':'+ Adicionar item',()=>{o.rows.push(row('Novo item','',g.service==='air'?(o.rows[0]?.quantity||'30'):'','1',{unit:g.service==='hotel'?'quartos':'pessoas',category:'other'}));rerender();}));
-      if(Number(data.people)>0){const priced=o.rows.filter(x=>x.state==='priced');const exceeds=g.service==='hotel'?priced.reduce((n,x)=>n+Number(x.quantity)*Number(x.occupancy||1),0)>Number(data.people):g.service==='air'&&Number(priced[0]?.quantity)>Number(data.people);if(exceeds)card.append(el('p','Confira a quantidade: esta opção atende mais pessoas que o total informado para o evento.','notice'));}if(g.service==='air')airPrice(card,o);else smallTotals(card,calculate(o));
     }else{
       input(grid,'Condições desta alternativa',o.conditions,v=>o.conditions=v,'textarea');card.append(grid,el('p','Descreva validade, pagamento, disponibilidade e cancelamento conforme a oferta do fornecedor.','supplier-detail'));
     }
-    main.append(card);save(main);pager(main,editorStep,total,editorStep===data.groups.length?'Revisar proposta ':'Próximo serviço ');
+    const layout=el('div',undefined,'service-layout'),summary=el('aside',undefined,'editor-price-summary');summary.id='editor-price-summary';summary.setAttribute('aria-label','Resumo financeiro da alternativa');
+    layout.append(card,summary);main.append(layout);updateEditorSummary();save(main);pager(main,editorStep,total,editorStep===data.groups.length?'Revisar proposta ':'Próximo serviço ');
   }
   function unitRows(target,rows){const dl=el('dl',undefined,'unit-breakdown');for(const [name,value]of rows){dl.append(el('dt',name),el('dd',money(value)));}target.append(dl);}
   function airPrice(card,o){
@@ -250,7 +298,7 @@
     if(clientStep===data.groups.length){review(main);return;}
     const g=data.groups[clientStep];
     screen(main,'SUA PROPOSTA · '+(clientStep+1)+' DE '+total,'Escolha '+(g.service==='air'?'seu aéreo':g.service==='hotel'?'sua hospedagem':g.service==='food'?'a alimentação':g.service==='transfer'?'seu transfer':g.service==='venue'?'seu espaço':'o seguro'),g.description);
-    main.append(el('p',data.event+' · '+(data.people||'Quantidade a definir')+' participantes no evento · valores em reais','screen-context'));
+    main.append(el('p','Valores em reais para o grupo. Confira a quantidade atendida em cada alternativa.','screen-context'));
     if(g.optional){const skip=button('Continuar sem este serviço',()=>{choices[g.id]='none';confirmed=false;const destination=editingChoice?data.groups.length:clientStep+1;editingChoice=false;move(destination);},choices[g.id]==='none'?'primary':'small-button');skip.disabled=liveLocked;main.append(skip);}
     const cards=el('div',undefined,'choices-grid');
     for(const o of g.options){
@@ -300,6 +348,8 @@
       box.append(consent,confirm);
     }else if(!quoteId||confirmed){
       box.append(confirm);
+    }else if(draftPreview()){
+      box.append(el('p','Esta é uma prévia do rascunho. Publique uma versão para que o cliente possa aprovar.'));
     }else{
       box.append(el('p','Consulte no cabeçalho a situação da versão e a próxima ação.'));
     }
@@ -312,8 +362,11 @@
   }
   function switchView(next){view=next;render();window.scrollTo({top:0,behavior:'instant'});}
   function render(){
-    const main=$('#content');
-    main.replaceChildren();
+    const root=$('#content');root.replaceChildren();
+    root.className=view==='editor'?'proposal-workspace':'proposal-customer';
+    document.body.dataset.proposalView=view;
+    $('#proposal-actions').replaceChildren();
+    let main=root;
     $('#editor-tab').setAttribute('aria-pressed',String(view==='editor'));
     $('#client-tab').setAttribute('aria-pressed',String(view==='client'));
     if(view==='editor'){
@@ -329,12 +382,17 @@
         if(index===editorStep)step.setAttribute('aria-current','step');
         steps.append(step);
       }
-      main.append(steps);
+      const sidebar=el('aside',undefined,'proposal-sidebar');sidebar.append(el('span','PREPARAÇÃO','eyebrow'),steps,el('p','O rascunho é privado. Publicar cria uma nova versão para o cliente.','sidebar-note'));
+      main=el('section',undefined,'proposal-stage');root.append(sidebar,main);
     }
-    if(quoteId){
+    if(draftPreview()){
+      const preview=el('div',undefined,'preview-notice');preview.append(el('strong','Prévia do rascunho'),el('span','Confira a apresentação antes de publicar.'));
+      preview.append(button('Voltar à edição',()=>switchView('editor')));main.append(preview);
+    }
+    if(quoteId&&!draftPreview()){
       const banner=el('section',undefined,'live-version-banner');
       const current=live?.versions?.find(version=>version.version===viewVersion);
-      banner.append(el('strong',view==='editor'?'Rascunho privado · última publicação: v'+latestVersion:
+      banner.append(el('strong',view==='editor'?(latestVersion?'Rascunho privado · última publicação: v'+latestVersion:'Rascunho privado · ainda não publicado'):
         'Proposta v'+viewVersion+(current?.approval?' · aprovada':current?.review?' · em revisão':liveLocked?' · versão anterior':'')));
       if(view==='client'&&live?.versions?.length){
         input(banner,'Versão apresentada',viewVersion,value=>{
@@ -352,12 +410,20 @@
         banner.append(el('p',live.canReview?'A proposta venceu. Solicite uma versão atualizada.':'A decisão está reservada ao aprovador autorizado da empresa.'));
       }
       main.append(banner);
-      if(view==='client'){reviewRequest(main);feedbackPanel(main);}
+    }
+    if(view==='client'){
+      const progress=el('nav',undefined,'customer-progress');progress.setAttribute('aria-label','Serviços da proposta');
+      for(const [index,label] of [...data.groups.map(g=>g.name),'Revisar escolhas'].entries()){
+        const step=button(label,()=>move(index));if(index===clientStep)step.setAttribute('aria-current','step');progress.append(step);
+      }main.append(progress);
     }
     (view==='editor'?editor:customer)(main);
+    if(view==='client'&&!draftPreview()){const conversations=el('section',undefined,'proposal-conversations');reviewRequest(conversations);feedbackPanel(conversations);if(conversations.children.length)main.append(conversations);}
+    updateSaveState();
   }
   $('#editor-tab').onclick=()=>switchView('editor');$('#client-tab').onclick=()=>switchView('client');
-  async function boot(){if(!quoteId){render();return;}const main=$('#content');main.textContent='Carregando a proposta…';try{
+  window.addEventListener('beforeunload',event=>{if((!quoteId||liveUser?.role==='consultant')&&hasChanges()){event.preventDefault();event.returnValue='';}});
+  async function boot(){if(!quoteId){savedSignature=JSON.stringify(data);render();return;}const main=$('#content');main.textContent='Carregando a proposta…';try{
     const session=await fetch('/api/session').then(r=>r.json());if(!session.user)throw Error('Entre no portal para acessar esta proposta.');liveUser=session.user;live=await remote('');latestVersion=live.versions[0]?.version||0;draftRevision=live.draft?.revision||0;
     const response=await fetch('/api/quotes/'+encodeURIComponent(quoteId));if(!response.ok)throw Error('Solicitação indisponível.');const q=await response.json();
     if(liveUser.role==='consultant'){
@@ -385,7 +451,8 @@
       }
       if(!data.groups.length)throw Error('Não há serviços selecionados no briefing.');
       view='editor';
-    }else{if(!latestVersion)throw Error('A proposta ainda está em preparação.');loadVersion(live.versions[0]);view='client';$('#editor-tab').hidden=true;}
-    const header=document.querySelector('header');header.querySelector('small').textContent='PROPOSTA DA COTAÇÃO #'+String(q.protocol).padStart(6,'0');header.querySelector('p').textContent='Compare os serviços e confira as condições da versão apresentada.';const back=el('a',' Voltar às cotações','portal-back');back.href='/portal.html';header.prepend(back);render();
+    }else{if(!latestVersion)throw Error('A proposta ainda está em preparação.');loadVersion(live.versions[0]);view='client';$('#editor-tab').hidden=true;$('#client-tab').closest('nav').hidden=true;}
+    savedSignature=JSON.stringify(data);
+    const header=document.querySelector('header');header.querySelector('small').textContent='COTAÇÃO #'+String(q.protocol).padStart(6,'0');header.querySelector('.proposal-caption').textContent='Proposta comercial · '+(data.people||'Quantidade a definir')+' participantes';const back=el('a','Voltar às cotações','portal-back');back.href='/portal.html';header.querySelector('.proposal-brand').append(back);render();
    }catch(error){main.textContent=error.message;const back=el('a','Voltar ao portal');back.href='/portal.html';main.append(back);$('#editor-tab').hidden=true;$('#client-tab').hidden=true;}}boot();
 })();

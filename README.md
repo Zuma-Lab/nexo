@@ -16,6 +16,8 @@ A página `/assets/test/index.html` reúne os acessos ao portal e à demonstraç
 
 O portal integrado permite registrar briefings, selecionar hotéis, acompanhar pedidos, publicar versões e registrar o aceite do aprovador. Abra uma solicitação pelo portal para acessar o editor vinculado ao protocolo. A página /assets/proposal/index.html, quando aberta diretamente, apresenta exemplos fictícios.
 
+O [piloto do editor e da proposta](docs/continuidade/PILOTO-PROPOSTA-20261121.md) organiza os serviços na lateral, mantém o resumo financeiro durante a edição e reúne as ações de salvar/revisar/publicar. A regressão integrada pode ser executada com `npm run test:proposal-ui` (Google Chrome e dependências instaladas).
+
 O roteiro de teste, os perfis e os limites de integração estão em docs/PRD01-ENTREGA.md.
 
 

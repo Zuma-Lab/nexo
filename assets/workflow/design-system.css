@@ -9,11 +9,6 @@
 }
 body { font-family: var(--font-body), sans-serif; }
 .budget-proposal-link, .overview-proposal-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 12px 18px; margin: 12px 0 20px; background: var(--theme-primary) !important; color: white !important; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; }
-.proposal-steps { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 0 22px; margin: 0 0 24px; border-bottom: 1px solid var(--ui-line); }
-.proposal-steps .proposal-step { display: inline-flex; align-items: center; gap: 9px; background: white; color: var(--ui-muted); border: 1px solid var(--ui-line); border-radius: 6px; padding: 10px 12px; font-size: 13px; text-align: left; }
-.proposal-steps .proposal-step[aria-current=step] { background: var(--theme-accentSoft); border-color: var(--theme-primary); color: var(--theme-primary); font-weight: 600; }
-.proposal-step-number { display: grid; place-items: center; flex-shrink: 0; width: 23px; height: 23px; border-radius: 50%; background: var(--theme-surface); color: var(--theme-primary); font-size: 12px; }
-@media(max-width:600px) { .proposal-steps { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }.proposal-steps .proposal-step { min-width: 0; overflow-wrap: anywhere; } }
 [hidden] { display: none !important; }
 /* Content hierarchy across the existing application. */
 .workspace h1, .request-panel h1 { font-weight: 600; }
@@ -58,19 +53,6 @@ body { font-family: var(--font-body), sans-serif; }
 .client-quote-options[open] summary::before, .screen-help[open] summary::before, .quote-advanced[open] summary::before { content: '−'; }
 .screen-help { margin: 12px 0 22px; color: var(--ui-muted); font-size: 13px; }
 .screen-help summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
-body:has(#content) > header { background: white; color: var(--ui-text); border-bottom: 1px solid var(--ui-line); }
-body:has(#content) > header img { content: url('/assets/project-logo-dark.svg'); width: 130px; }
-body:has(#content) .portal-back { color: var(--theme-primary); }
-body:has(#content) header nav button { color: var(--theme-primary); border-color: var(--ui-line); box-shadow: none; }
-body:has(#content) header nav button[aria-pressed=true] { color: var(--theme-primary); background: var(--theme-accentSoft); border-color: var(--theme-primary); }
-body:has(#content) header small, body:has(#content) header p { color: var(--ui-muted); }
-body:has(#content) .option, body:has(#content) .row-editor { border: 1px solid var(--ui-line); box-shadow: none; border-radius: 8px; }
-body:has(#content) .option.selected { border: 2px solid var(--theme-primary); background: var(--theme-accentSoft); }
-body:has(#content) .intro { margin: 8px 0 22px; font-size: 14px; line-height: 1.6; }
-body:has(#content) .live-version-banner { gap: 12px; padding: 18px; border: 1px solid var(--ui-line); grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); align-items: center; }
-body:has(#content) .live-version-banner p { font-size: 13px; margin: 0; }
-body:has(#content) .summary { background: var(--theme-primary); border-radius: 8px; }
-body:has(#content) .screen-footer .primary { background: var(--theme-primary); color: white; }
 @media(max-width:760px) {
   .quote-tools { grid-template-columns: minmax(0,1fr); }
   .quote-advanced { padding-top: 0; }
@@ -78,7 +60,6 @@ body:has(#content) .screen-footer .primary { background: var(--theme-primary); c
   .client-quote-actions { display: flex; align-items: start; flex-wrap: wrap; gap: 16px; }
   .request-panel .request-view > .workflow-section { padding: 18px; }
   .workflow-fields { grid-template-columns: minmax(0,1fr); }
-  body:has(#content) .live-version-banner { grid-template-columns: minmax(0,1fr); }
 }
 /* NEXO: shared presentation applied to the existing portal and briefing. */
 :root {
@@ -238,11 +219,6 @@ body:has(#login) .footer { color: var(--ui-muted); }
 .quote-card h2, .quote-card h3 { font-family: var(--font-body); letter-spacing: -.02em; }
 .quote-card label { line-height: 1.5; }
 .quote-card input, .quote-card select, .quote-card textarea { border-radius: 7px; }
-.screen-footer { border-top: 1px solid var(--theme-border); }
-.screen-footer button, .row-editor, .option, .live-version-banner { border-radius: 8px; box-shadow: none; }
-.option { padding: 18px; }
-.row-editor { border-color: var(--theme-border); }
-.live-version-banner { border-left-width: 1px; }
 .supplier-matrix-wrap { overflow: auto; }
 .supplier-matrix { width: 100%; min-width: 900px; border-collapse: separate; border-spacing: 0; text-align: left; }
 .supplier-matrix :is(th,td) { padding: 14px 12px; vertical-align: top; border-bottom: 1px solid var(--ui-line); }
