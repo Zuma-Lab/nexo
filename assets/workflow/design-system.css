@@ -197,7 +197,7 @@ body:has(#login) > header .demo { color: var(--ui-muted); border-color: var(--ui
 .login-fields { background: var(--ui-surface); padding: 26px; border: 1px solid var(--ui-line); border-radius: 12px; }
 .login-fields input { background: var(--ui-canvas); border-color: var(--ui-line); color: var(--ui-text); padding: 12px; }
 .login-fields .field:first-child { margin-top: 0; }
-.login-panel .primary { background: var(--ui-accent); color: #1d2946; border-radius: 8px; padding: 12px; }
+.login-panel .primary { background: var(--theme-primary); color: #fff; border-radius: 8px; padding: 12px; }
 .quick { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .quick button { background: transparent; color: var(--ui-text); border: 1px solid var(--ui-line); border-radius: 8px; min-height: 44px; font-size: 14px; }
 .quick button:hover { background: #283349; }
@@ -238,4 +238,16 @@ body:has(#login) .footer { color: var(--ui-muted); }
   .login-intro h1 { margin-top: 14px; }
   .login-fields { padding: 20px; }
   .queue-task { grid-template-columns: minmax(0,1fr); }
+}
+
+.login-panel .primary:hover { background: var(--theme-primaryDeep); }
+.login-fields input { border-color: var(--theme-border); }
+.login-fields input::placeholder { color: var(--theme-muted); opacity: 1; }
+.login-panel :focus-visible { outline: 2px solid var(--theme-primary); outline-offset: 3px; }
+
+@media (max-width: 480px) {
+  .login-fields { min-width: 0; padding: 16px; }
+  .request-heading, .proposal-heading { overflow-wrap: anywhere; }
+  .proposal-heading > *, .proposal-actions > * { min-width: 0; max-width: 100%; }
+  .proposal-actions button { white-space: normal; }
 }

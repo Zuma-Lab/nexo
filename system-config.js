@@ -20,7 +20,7 @@
     style.setProperty('--font-body', config.theme.fonts.body);
     style.setProperty('--font-heading', config.theme.fonts.heading);
     const apply = () => {
-      document.title = config.brand.name + ' · ' + config.brand.category;
+      if (!document.querySelector('title[data-page-title]')) document.title = config.brand.name + ' · ' + config.brand.category;
       document.querySelectorAll('[data-brand-text]').forEach(el => { el.textContent = config.brand[el.dataset.brandText] || ''; });
       document.querySelectorAll('[data-brand-image]').forEach(el => { el.src = config.brand[el.dataset.brandImage]; el.alt = config.brand.name; });
     };
