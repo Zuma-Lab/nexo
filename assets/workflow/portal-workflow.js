@@ -54,10 +54,10 @@
     parent.append(element);
     return controls;
   }
-  function group(parent,id,title){
+  function group(parent,id,title,headingTag='h2'){
     const section=node('section',undefined,'workflow-section');
     section.id=id;
-    section.append(node('h2',title));
+    section.append(node(headingTag,title));
     parent.append(section);
     return section;
   }
@@ -378,7 +378,7 @@
     render();
   }
   async function administration(parent,api){
-    const root=group(parent,'administration','Administração');
+    const root=group(parent,'administration','Administração','h1');
     const navigation=node('nav',undefined,'administration-nav');
     navigation.setAttribute('aria-label','Áreas da administração');
     const content=node('div');

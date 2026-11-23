@@ -286,11 +286,12 @@ function createApp({ database = path.join(FRONTEND, 'data', 'quotes.sqlite') } =
       const real=fs.realpathSync(file);
       if(!real.startsWith(fs.realpathSync(FRONTEND)+path.sep)) return respond(404,{error:'Não encontrado.'});
       const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.svg':'image/svg+xml','.woff2':'font/woff2','.ttf':'font/ttf'};
+      if(fileName==='formulario.html') res.setHeader('X-Robots-Tag','noindex, nofollow');
       res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','X-Content-Type-Options':'nosniff','Cache-Control':'no-store'});
       if(req.method==='HEAD') return res.end();
       if(fileName==='formulario.html') {
         const identity=JSON.stringify(publicUser(user)).replace(/</g,'\\u003c');
-        return res.end(fs.readFileSync(file,'utf8').replace('<head>','<head><script>window.PAYTRACK_USER='+identity+';</script>'));
+        return res.end(fs.readFileSync(file,'utf8').replace('<head>','<head><script>window.PAYTRACK_USER='+identity+';</script>').replace('<title data-page-title>Cotação de grupos e eventos · Nexo</title>','<title data-page-title>Briefing da cotação · Nexo</title>'));
       }
       fs.createReadStream(file).on('error',()=>res.destroy()).pipe(res);
     } catch(e) { if(e.status)return respond(e.status,{error:e.message});console.error('[demo]',e);respond(500,{error:'Falha ao processar. Dados preservados.'}); }
