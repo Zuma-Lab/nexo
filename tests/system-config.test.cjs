@@ -14,7 +14,7 @@ test('identity and theme changes reach the browser without changing business rul
   const document = {
     documentElement: { style: { setProperty: (key, value) => properties.set(key, value) } },
     addEventListener: (event, fn) => { if (event === 'DOMContentLoaded') ready = fn; },
-    querySelectorAll: selector => selector === '[data-brand-text]' ? [textNode] : [imageNode]
+    querySelectorAll: selector => selector === '[data-brand-text]' ? [textNode] : selector === '[data-brand-image]' ? [imageNode] : []
   };
   const source = original.replace("name: 'NEXO'", "name: 'Marca de teste'").replace("primary: '#214E49'", "primary: '#245544'");
   const context = vm.createContext({ document });
