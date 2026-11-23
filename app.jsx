@@ -562,7 +562,7 @@ function App() {
     ];
     if (form.svcAereo)              s.push({ id: 'aereo',      label: 'Aéreo',      icon: 'plane' });
     if (form.svcHospedagem)         s.push({ id: 'hospedagem', label: 'Hospedagem', icon: 'hotel' });
-    if (form.svcEspacoAlimentacao)  s.push({ id: 'espaco',     label: 'Salas & A&B', icon: 'presentation' });
+    if (form.svcEspacoAlimentacao)  s.push({ id: 'espaco',     label: 'Espaços e alimentação', icon: 'presentation' });
     if (form.svcTransfers)          s.push({ id: 'transfers',  label: 'Transfer',   icon: 'bus' });
     s.push({ id: 'empresa', label: 'Empresa', icon: 'building-2' });
     s.push({ id: 'revisao', label: 'Revisão & Envio', icon: 'check-circle-2' });
@@ -805,7 +805,7 @@ function App() {
 • Salas de Apoio: ${summaryForm.breakoutRoomsCount || 'A definir'}
 • Equipamentos AV: ${summaryForm.avServices.length ? summaryForm.avServices.join(', ') : 'A definir'}${summaryForm.avOtherNotes ? ` (${summaryForm.avOtherNotes})` : ''}
 • Alimentos & Bebidas: ${summaryForm.cateringServices.length ? summaryForm.cateringServices.join(', ') : 'A definir'}${summaryForm.cateringServices.includes('Coffee Break') ? ` (Coffee: ${coffeeCaption(summaryForm.coffeeBreakPerDay)})` : ''}
-• Observações de Salas & A&B: ${summaryForm.espacoAlimentacaoNotes || 'Nenhuma'}`;
+• Observações de Espaços e alimentação: ${summaryForm.espacoAlimentacaoNotes || 'Nenhuma'}`;
     }
 
     if (summaryForm.svcTransfers) {
@@ -2055,7 +2055,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
                     {reviewForm.cateringServices.includes('Coffee Break') && ` (Coffee: ${coffeeCaption(reviewForm.coffeeBreakPerDay)})`}
                   </div>
                 </div>
-                {reviewForm.espacoAlimentacaoNotes && <div><strong>Observações Salas & A&B:</strong> {reviewForm.espacoAlimentacaoNotes}</div>}
+                {reviewForm.espacoAlimentacaoNotes && <div><strong>Observações Espaços e alimentação:</strong> {reviewForm.espacoAlimentacaoNotes}</div>}
               </div>
             </div>
           ) : (
@@ -2207,10 +2207,7 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
           </section>
 
         </main>
-        <footer className="welcome-footer">
-          <p>Hospedagem <span>·</span> Espaços <span>·</span> Alimentação <span>·</span> Transporte</p>
-          <span>BRIEFING · COTAÇÃO · PROPOSTA</span>
-        </footer>
+
       </div>
       {launching && <div className="launch-overlay" aria-hidden="true" />}
     </div>
@@ -2258,7 +2255,10 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
           <span className="quote-eyebrow font-sans text-[10px] font-bold tracking-[.18em] uppercase text-pt-yellow1 border-pt-yellow1/30">
             {BRAND.name.toUpperCase()} / {BRAND.category.toUpperCase()}
           </span>
-          <p className="summary-progress">Etapa {safeStepIdx + 1} de {steps.length}</p><div className="summary-heading">
+          <div className="briefing-progress">
+            <p className="summary-progress">Etapa {safeStepIdx + 1} de {steps.length} · {currentStep.label}</p>
+            <progress aria-label="Progresso do briefing" max={steps.length} value={safeStepIdx + 1} />
+          </div><div className="summary-heading">
             <span className="font-bold tracking-[.14em] uppercase text-[10px] text-slate-300">SEU PLANEJAMENTO</span>
             <span className="summary-tag font-semibold text-[10px]">{currentStep.id === 'revisao' ? 'Em revisão' : 'Rascunho'}</span>
           </div>

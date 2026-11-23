@@ -21,13 +21,15 @@
 </aside>
 <main id="login" class="login-grid"><section class="login-panel"><div class="login-intro"><a class="login-back" href="/"> Voltar ao início</a><span class="eyebrow">GRUPOS & EVENTOS</span><h1>Entre para continuar</h1><p>Acesse suas cotações e acompanhe as próximas etapas.</p>
 </div><div class="login-fields"><form id="login-form"><div class="field"><label for="email">E-mail corporativo</label><input id="email" type="email" autocomplete="username" required placeholder="nome@empresa.com.br"></div><div class="field"><label for="password">Senha</label><input id="password" type="password" autocomplete="current-password" required placeholder="Sua senha"></div><button id="enter" type="submit" class="primary">Entrar <span aria-hidden="true"></span></button><p id="login-error" class="message" role="alert" aria-live="polite"></p></form>
-<p class="hint">Escolha um acesso de demonstração</p><div class="quick"><button type="button" data-email="consultor@paytrack.demo">Consultor</button><button type="button" data-email="solicitante@alpha.demo">Solicitante</button><button type="button" data-email="admin@paytrack.demo">Administrador</button></div>
+<details class="demo-access"><summary>Acessos de demonstração</summary><div class="quick"><button type="button" data-email="consultor@paytrack.demo">Consultor</button><button type="button" data-email="solicitante@alpha.demo">Solicitante</button><button type="button" data-email="admin@paytrack.demo">Administrador</button></div></details>
 </div></section></main>
-<main id="workspace" class="workspace hidden"><span class="eyebrow" id="workspace-role"></span><h1 id="greeting">Minhas cotações</h1><p id="workspace-lead" class="workspace-lead"></p>
-<section id="client-hero" class="hero-box hidden"><div><h2>Novo evento</h2></div><a class="primary" href="/formulario.html?novo=1">Iniciar cotação</a></section>
+<main id="workspace" class="workspace hidden"><div class="workspace-masthead">
+  <div><span class="eyebrow" id="workspace-role"></span><h1 id="greeting">Minhas cotações</h1><p id="workspace-lead" class="workspace-lead"></p></div>
+  <div id="client-hero" class="hidden"><a class="primary" href="/formulario.html?novo=1">Nova cotação</a></div>
+</div>
 <section id="client-priority" class="client-priority" aria-labelledby="client-priority-title" hidden><h2 id="client-priority-title">Precisa de você</h2><div id="client-priority-items"></div></section>
-<nav id="client-filters" class="consultant-nav client-filters" aria-label="Filtrar minhas cotações" hidden></nav>
 <div class="workspace-toolbar">
+<nav id="client-filters" class="consultant-nav client-filters" aria-label="Filtrar minhas cotações" hidden></nav>
   <nav id="consultant-nav" class="consultant-nav" aria-label="Central do consultor" hidden>
     <button id="view-queue" type="button" aria-controls="queue-panel" aria-pressed="true">Pendências</button>
     <button id="view-quotes" type="button" aria-controls="quotes-panel" aria-pressed="false">Cotações</button>

@@ -423,13 +423,13 @@
   const preferences=qs('#company-preferences');
   preferences.textContent=user.preferences?[user.preferences.budget?'Investimento desejado: '+user.preferences.budget:'',user.preferences.criteria].filter(Boolean).join(' · '):'';
   preferences.hidden=!preferences.textContent;
-  qs('#workspace-role').textContent=consultant?'Consultoria':'PORTAL DO CLIENTE · '+user.companyName;
+  qs('#workspace-role').textContent=consultant?'Operação de eventos':user.companyName;
   qs('#greeting').tabIndex=-1;
   qs('#greeting').textContent=consultant?'Central de cotações':'Minhas cotações';
-  qs('#workspace-lead').textContent='';
-  qs('#workspace-lead').hidden=true;
+  qs('#workspace-lead').textContent=consultant?'Acompanhe os pedidos em aberto e priorize as pendências da equipe.':'Acompanhe seus pedidos, responda a pendências e consulte as propostas.';
+  qs('#workspace-lead').hidden=false;
   qs('#client-hero').classList.toggle('hidden',consultant);
-  qs('#list-heading').textContent=consultant?'Cotações':'Cotações';
+  qs('#list-heading').textContent=consultant?'Cotações da equipe':'Pedidos registrados';
   qs('#quote-sort').value=consultant?'action':'newest';
   void loadQuotes();
  }
@@ -467,7 +467,7 @@
   for(const quote of pending){
     const row=el('article','priority-quote');
     const copy=el('div');
-    copy.append(el('h3',null,quote.form?.eventName||'Evento sem nome'),el('p',null,quote.progress.nextAction));
+    copy.append(el('h3',null,quote.form?.eventName||'Evento sem nome'),el('p',null,quote.progress.complement?.prompt||quote.progress.nextAction));
     const action=quote.progress.complement?el('button','secondary','Responder pendência'):proposalLink(quote);
     if(quote.progress.complement){
       action.type='button';
