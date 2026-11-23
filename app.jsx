@@ -2193,13 +2193,13 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
       <div className="welcome-page">
         <header className="welcome-header">
           <img src={BRAND.logoLight} alt={BRAND.name} />
-          {apiStatus === 'ready' && <a className="welcome-portal-link" href="./portal.html">Acessar painel</a>}
+          {apiStatus === 'ready' && <a className="welcome-portal-link" href="./portal.html">Minhas cotações</a>}
         </header>
         <main className="welcome-main">
           <section className="welcome-copy hero-enter" aria-labelledby="welcome-title">
             <p className="welcome-eyebrow">COTAÇÃO DE EVENTOS CORPORATIVOS</p>
-            <h1 id="welcome-title">Seu evento,<br /><em>bem cotado.</em></h1>
-            <p className="welcome-description">Reúna briefing, hospedagem, espaços, alimentação e transporte. Acompanhe cada etapa até receber a proposta.</p>
+            <h1 id="welcome-title">Cotações para<br /><em>eventos corporativos</em></h1>
+            <p className="welcome-description">Solicite aéreo, hospedagem, espaços, alimentação e transporte em um único briefing. Acompanhe seu pedido até a proposta.</p>
             <button onClick={startQuote} disabled={launching} className="welcome-cta">
               <span>Iniciar cotação</span>
             </button>
@@ -2222,11 +2222,11 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
       <section className="confirmation-card" aria-labelledby="confirmation-heading">
         <p className="confirmation-eyebrow">BRIEFING ENVIADO</p>
         <h1 id="confirmation-heading">Solicitação registrada.</h1>
-        <p>Seu briefing está disponível para o consultor no ambiente de demonstração.</p>
+        <p>A equipe recebeu seu briefing. Você pode acompanhar a análise e responder a pedidos de informação pelo portal.</p>
         <div className="confirmation-protocol"><span>Protocolo</span><strong>#{String(registration.protocol).padStart(6,'0')}</strong></div>
-        <dl><div><dt>Situação local</dt><dd>{REQUEST_STATUS_LABELS[registration.status] || 'Registrada'}</dd></div><div><dt>Registro (Brasília)</dt><dd>{new Date(registration.createdAt).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})}</dd></div></dl>
-        <div className="confirmation-notice"><strong>Acompanhe pelo seu painel.</strong><p>O consultor pode consultar esta solicitação e atualizar o status. E-mail real desativado nesta demonstração.</p></div>
-        <div className="confirmation-actions"><a className="register-button" href="/portal.html">Ver minhas cotações</a><button type="button" className="confirmation-refresh" onClick={checkRegistration} disabled={checkingRegistration}>{checkingRegistration ? 'Atualizando…' : 'Atualizar status'}</button></div>
+        <dl><div><dt>Situação</dt><dd>{REQUEST_STATUS_LABELS[registration.status] || 'Registrada'}</dd></div><div><dt>Registro (Brasília)</dt><dd>{new Date(registration.createdAt).toLocaleString('pt-BR', {timeZone:'America/Sao_Paulo'})}</dd></div></dl>
+        <div className="confirmation-notice"><strong>Acompanhe pelo seu painel.</strong><p>Se a equipe precisar de mais informações, a pendência aparecerá na cotação.</p></div>
+        <div className="confirmation-actions"><a className="register-button" href={'/portal.html?cotacao=' + encodeURIComponent(registration.id)}>Acompanhar esta cotação</a><button type="button" className="confirmation-refresh" onClick={checkRegistration} disabled={checkingRegistration}>{checkingRegistration ? 'Atualizando…' : 'Atualizar status'}</button></div>
         {submitError && <p className="submission-error" role="alert">{submitError}</p>}
       </section>
     </main>

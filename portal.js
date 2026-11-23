@@ -4,6 +4,7 @@
  const qs=(s)=>document.querySelector(s);
  const STATUSES={received:'Solicitação recebida',analysis:'Em análise',complement:'Ação necessária',quoting:'Em cotação',consolidating:'Preparando proposta',proposal:'Aguardando aprovação',review:'Em revisão',approved:'Aprovada',closed:'Encerrada',cancelled:'Cancelada'};
  let currentUser=null, cachedQuotes=[], loadVersion=0;
+ let requestedQuote=new URLSearchParams(location.search).get('cotacao');
  const dateLabel=value=>value?new Date(value.length===10?value+'T12:00:00':value).toLocaleDateString('pt-BR'):'A definir';
  function duplicateQuote(q){if(localStorage.getItem(storage.draftPrefix+currentUser.companyId)&&!window.confirm('Substituir o rascunho atual por uma cópia deste evento?'))return;try{localStorage.setItem(storage.draftPrefix+currentUser.companyId,JSON.stringify(q.form||{}));sessionStorage.removeItem(storage.attemptPrefix+currentUser.companyId);location.assign('/formulario.html');}catch(e){qs('#workspace-message').textContent='Não foi possível criar o rascunho neste navegador.';}}
 
@@ -396,6 +397,7 @@
   document.querySelectorAll('.request-panel').forEach(panel=>panel.remove());
   currentUser=user;
   cachedQuotes=[];
+  renderClientPriority();
   renderClientFilters();
   loadVersion++;
   document.body.classList.toggle('is-consultant',consultant);
@@ -422,7 +424,8 @@
   preferences.textContent=user.preferences?[user.preferences.budget?'Investimento desejado: '+user.preferences.budget:'',user.preferences.criteria].filter(Boolean).join(' · '):'';
   preferences.hidden=!preferences.textContent;
   qs('#workspace-role').textContent=consultant?'Consultoria':'PORTAL DO CLIENTE · '+user.companyName;
-  qs('#greeting').textContent=consultant?'Central de cotações':'Meus eventos';
+  qs('#greeting').tabIndex=-1;
+  qs('#greeting').textContent=consultant?'Central de cotações':'Minhas cotações';
   qs('#workspace-lead').textContent='';
   qs('#workspace-lead').hidden=true;
   qs('#client-hero').classList.toggle('hidden',consultant);
@@ -443,11 +446,38 @@
     status.hidden=true;
     renderQuotes();
     renderQueue();
+    if(requestedQuote){
+      const quote=quotes.find(item=>item.id===requestedQuote);
+      requestedQuote=null;
+      const url=new URL(location.href);
+      url.searchParams.delete('cotacao');
+      history.replaceState(null,'',url);
+      if(quote)void openRequest(quote,qs('#greeting'));
+      else qs('#workspace-message').textContent='Esta cotação não está disponível na sua conta.';
+    }
   }catch(e){
     if(version===loadVersion&&session===currentUser)status.textContent=e.message+' Use Atualizar para tentar novamente.';
   }
  }
- function renderQuotes(){if(!currentUser)return;renderClientFilters();const box=qs('#cards');box.replaceChildren();const consultant=currentUser.role==='consultant',query=(qs('#quote-search')?.value||'').toLocaleLowerCase('pt-BR'),filter=qs('#quote-filter')?.value||'',pending=consultant&&qs('#pending-only')?.checked;
+ function renderClientPriority(){
+  const section=qs('#client-priority'), items=qs('#client-priority-items');
+  items.replaceChildren();
+  const pending=currentUser?.role==='client'?cachedQuotes.filter(quote=>quote.progress?.actionable):[];
+  section.hidden=!pending.length;
+  for(const quote of pending){
+    const row=el('article','priority-quote');
+    const copy=el('div');
+    copy.append(el('h3',null,quote.form?.eventName||'Evento sem nome'),el('p',null,quote.progress.nextAction));
+    const action=quote.progress.complement?el('button','secondary','Responder pendência'):proposalLink(quote);
+    if(quote.progress.complement){
+      action.type='button';
+      action.onclick=()=>openRequest(quote,action,'request-progress');
+    }
+    row.append(copy,action);
+    items.append(row);
+  }
+ }
+ function renderQuotes(){if(!currentUser)return;renderClientPriority();renderClientFilters();const box=qs('#cards');box.replaceChildren();const consultant=currentUser.role==='consultant',query=(qs('#quote-search')?.value||'').toLocaleLowerCase('pt-BR'),filter=qs('#quote-filter')?.value||'',pending=consultant&&qs('#pending-only')?.checked;
   let quotes=cachedQuotes.filter(q=>matchesFilter(q,filter)&&(!pending||q.operation?.pendingNote||q.progress?.actionable)&&(!query||[q.form?.eventName,q.companyName,q.protocol,String(q.protocol).padStart(6,'0')].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
   if(qs('#quote-sort').value==='action')quotes.sort((a,b)=>(a.progress?.tasks?.[0]?.priority??(a.progress?.actionable?6:7))-(b.progress?.tasks?.[0]?.priority??(b.progress?.actionable?6:7))||(a.progress?.tasks?.[0]?.date||'9999').localeCompare(b.progress?.tasks?.[0]?.date||'9999')||b.created.localeCompare(a.created));else if(qs('#quote-sort').value==='oldest')quotes.sort((a,b)=>a.created.localeCompare(b.created));else if(qs('#quote-sort').value==='due')quotes.sort((a,b)=>(a.operation?.dueDate||'9999').localeCompare(b.operation?.dueDate||'9999'));else quotes.sort((a,b)=>b.created.localeCompare(a.created));
   qs('#empty').style.display=quotes.length?'none':'block';qs('#empty').textContent=cachedQuotes.length?'Nenhuma cotação encontrada para esta busca.':'Nenhuma cotação registrada ainda.';qs('#quote-count').textContent=quotes.length+' de '+cachedQuotes.length+' solicitações';

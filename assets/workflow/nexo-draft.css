@@ -1,0 +1,121 @@
+/* Shared visual system for the Nexo review branch. */
+:root {
+  --nexo-ink: #162e2a;
+  --nexo-paper: #f5f6f1;
+  --nexo-line: #d6ded6;
+  --nexo-mint: #e5eee5;
+  --nexo-radius: 12px;
+  --nexo-shadow: 0 12px 40px rgb(22 46 42 / 7%);
+  --nexo-gutter: clamp(16px, 4vw, 56px);
+}
+
+.welcome-scene { background: #142e29; }
+.welcome-background { inset: 0 0 0 47%; }
+.welcome-background img { object-position: 64% center; }
+.welcome-background::after {
+  background: linear-gradient(90deg, #142e29, rgb(20 46 41 / 10%) 52%, rgb(20 46 41 / 24%));
+}
+.welcome-page { padding-inline: var(--nexo-gutter); }
+.welcome-copy { width: min(100%, 48rem); }
+.welcome-copy h1 { font-size: clamp(38px, 5.8vw, 80px); font-weight: 620; line-height: 1.04; }
+.welcome-copy h1 em { font-style: normal; color: #c9e1d0; font-weight: inherit; }
+.welcome-description { font-size: 1rem; max-width: 31rem; }
+.welcome-cta { padding-inline: 24px; min-height: 48px; }
+.welcome-portal-link { font-size: .875rem; }
+.welcome-scene .welcome-reassurance { display: block; color: #dce9df; font-size: .875rem; }
+
+body:has(#login), body:has(.quote-shell), body:has(.proposal-header),
+.briefing-create-shell, .confirmation-shell {
+  --ui-canvas: var(--nexo-paper);
+  --ui-surface: #fff;
+  --ui-text: var(--nexo-ink);
+  --ui-muted: #4d6057;
+  --ui-line: var(--nexo-line);
+  background: var(--nexo-paper);
+}
+body:has(#login) > header, .briefing-create-shell > header {
+  padding-inline: var(--nexo-gutter);
+}
+.login-grid { padding-inline: var(--nexo-gutter); }
+.login-panel { max-width: 950px; }
+.login-fields, .briefing-create-panel form, .confirmation-card {
+  background: #fff;
+  border: 1px solid var(--nexo-line);
+  border-radius: var(--nexo-radius);
+  box-shadow: var(--nexo-shadow);
+}
+.briefing-create-panel form { padding: clamp(20px, 4vw, 32px); }
+.login-fields { padding: clamp(18px, 3vw, 32px); }
+.login-fields .primary { min-height: 48px; }
+.login-intro h1, .workspace h1, .request-panel h1, .briefing-create-panel h1, .confirmation-card h1 {
+  color: var(--nexo-ink);
+  font-weight: 650;
+  letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+}
+.workspace, .request-panel { padding-inline: var(--nexo-gutter); }
+.client-priority { margin-block: 24px; }
+.client-priority h2 { margin: 0 0 12px; font-size: 1.125rem; }
+#client-priority-items { display: grid; gap: 8px; }
+.priority-quote {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 14px 18px;
+  border: 1px solid #bdcfc0;
+  border-radius: var(--nexo-radius);
+  background: var(--nexo-mint);
+}
+.priority-quote h3, .priority-quote p { margin: 0; overflow-wrap: anywhere; }
+.priority-quote h3 { font-size: 1rem; }
+.priority-quote p { font-size: .875rem; color: #344e43; }
+.priority-quote :is(button, a) { min-height: 44px; display: inline-flex; align-items: center; }
+.card.client-quote-row, .quote-table, .queue-task, .request-panel .workflow-card {
+  border-color: var(--nexo-line);
+  border-radius: var(--nexo-radius);
+}
+#request-progress, .quote-shell .live-summary, .editor-price-summary, .live-version-banner {
+  border-color: #bdcfc0;
+  border-radius: var(--nexo-radius);
+  background: var(--nexo-mint);
+}
+#request-progress .progress-next-action { color: var(--nexo-ink); font-weight: 650; }
+.quote-shell .quote-card { box-shadow: var(--nexo-shadow) !important; }
+.quote-shell .summary-progress { color: #344e43; font-size: .875rem; }
+.quote-shell .quote-card :is(input:not([type=checkbox]):not([type=radio]), select, textarea) {
+  font-size: 1rem;
+}
+.quote-shell .planning-navigation button, .confirmation-actions :is(a, button),
+.proposal-header :is(button, a), .screen-footer button { min-height: 44px; }
+.proposal-header { border-bottom-color: var(--nexo-line); }
+.proposal-stage, .proposal-customer { padding-inline: var(--nexo-gutter); }
+.choices-grid > *, .service-layout > *, .proposal-heading > * { min-width: 0; overflow-wrap: anywhere; }
+.proposal-customer .option, .proposal-stage .option { border-color: var(--nexo-line); border-radius: var(--nexo-radius); }
+.proposal-customer .summary { border-radius: var(--nexo-radius); }
+.team-header { border-bottom: 1px solid var(--nexo-line); }
+
+:is(.login-fields, .workspace, .request-panel, .quote-shell, .briefing-create-panel, .proposal-header, .proposal-customer, .proposal-stage) :focus-visible {
+  outline: 2px solid #21604c;
+  outline-offset: 3px;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :is(.welcome-cta, .priority-quote button, .priority-quote a, .confirmation-actions a) { transition: transform .15s ease, background-color .15s ease; }
+  :is(.welcome-cta, .priority-quote button, .priority-quote a, .confirmation-actions a):hover { transform: translateY(-2px); }
+  :is(.welcome-cta, .priority-quote button, .priority-quote a, .confirmation-actions a):active { transform: translateY(0); }
+}
+@media (max-width: 680px) {
+  .welcome-background { inset: 0; }
+  .welcome-background::after { background: linear-gradient(180deg, rgb(20 46 41 / 59%), #142e29 76%); }
+  .welcome-header img { width: min(34vw, 140px); }
+  .priority-quote { grid-template-columns: minmax(0, 1fr); justify-items: start; }
+  .briefing-create-shell > header { gap: 12px; overflow-wrap: anywhere; }
+  .briefing-create-shell > header img { width: min(34vw, 140px); }
+  .proposal-heading nav, .proposal-actions, .confirmation-actions { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-scene .hero-enter { animation: none; }
+}
+@media print {
+  .welcome-scene, .quote-shell { box-shadow: none; }
+}
