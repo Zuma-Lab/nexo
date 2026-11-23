@@ -215,3 +215,42 @@ body:has(#login) > header, .briefing-create-shell > header {
 @media (max-width: 520px) {
   .is-client #cards .client-quote-row { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Light surfaces keep the product and its actions in view. */
+:root {
+  --nexo-paper: #f5f5ef;
+  --nexo-ink: #191e1a;
+  --nexo-line: #d9ddd4;
+  --nexo-mint: #e9eee3;
+}
+.nexo-light-entry.welcome-scene { background: var(--nexo-paper); color: var(--nexo-ink); }
+.nexo-light-entry .welcome-main {
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+  gap: clamp(24px, 6vw, 96px);
+  align-items: center;
+  padding-block: 24px 64px;
+}
+.nexo-light-entry .welcome-copy h1 {
+  color: var(--nexo-ink);
+  font-size: clamp(34px, 5.2vw, 74px);
+  letter-spacing: -.055em;
+}
+.nexo-light-entry .welcome-description,
+.nexo-light-entry .welcome-reassurance { color: #455247; }
+.nexo-light-entry .welcome-cta { background: #204c3d; color: #fff; }
+.nexo-light-entry .welcome-cta:hover { background: #173c30; }
+.nexo-light-entry .welcome-portal-link { color: var(--nexo-ink); border-color: #bec7ba; background: #fff; }
+.nexo-light-entry :is(.welcome-cta, .welcome-portal-link):focus-visible { outline: 2px solid #204c3d; outline-offset: 4px; }
+.welcome-preview { border-radius: 14px; overflow: hidden; background: #dce5d9; }
+.welcome-preview img { display: block; width: 100%; aspect-ratio: 4 / 3; height: auto; object-fit: cover; object-position: 65% center; }
+.is-client .workspace-inbox { background: #fff; color: var(--nexo-ink); border: 1px solid var(--nexo-line); }
+.workspace-inbox .priority-quote { border-color: var(--nexo-line); }
+.workspace-inbox :is(.priority-quote p, #client-inbox-empty) { color: #455247; }
+.workspace-inbox .priority-quote :is(button,a) { background: #e2ecdf; color: #18332c; }
+.workspace-inbox .priority-quote :is(button,a):focus-visible { outline-color: #204c3d; }
+@media (max-width: 760px) {
+  .nexo-light-entry .welcome-main { grid-template-columns: minmax(0,1fr); align-content: center; padding-bottom: 36px; }
+  .nexo-light-entry .welcome-copy { padding-block: 0; }
+  .welcome-preview img { aspect-ratio: 16 / 9; }
+}

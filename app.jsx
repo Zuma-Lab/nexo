@@ -2186,25 +2186,25 @@ ${summaryForm.generalNotes || 'Nenhuma observação geral adicional.'}
     );
   }
   if (!started) return (
-    <div className={"hero-scene welcome-scene min-h-screen text-white relative overflow-hidden" + (launching ? " is-launching" : "")}>
-      <div className="welcome-background" aria-hidden="true">
-        <img src={BRAND.heroImage} alt="" fetchPriority="high" width="1672" height="941" />
-      </div>
+    <div className={"hero-scene welcome-scene nexo-light-entry min-h-screen relative overflow-hidden" + (launching ? " is-launching" : "")}>
       <div className="welcome-page">
         <header className="welcome-header">
-          <img src={BRAND.logoLight} alt={BRAND.name} />
+          <img src={BRAND.logoDark} alt={BRAND.name} />
           {apiStatus === 'ready' && <a className="welcome-portal-link" href="./portal.html">Minhas cotações</a>}
         </header>
         <main className="welcome-main">
           <section className="welcome-copy hero-enter" aria-labelledby="welcome-title">
-            <p className="welcome-eyebrow">COTAÇÃO DE EVENTOS CORPORATIVOS</p>
-            <h1 id="welcome-title">Cotações para<br /><em>eventos corporativos</em></h1>
+            
+            <h1 id="welcome-title">Cotações para eventos corporativos</h1>
             <p className="welcome-description">Solicite aéreo, hospedagem, espaços, alimentação e transporte em um único briefing. Acompanhe seu pedido até a proposta.</p>
             <button onClick={startQuote} disabled={launching} className="welcome-cta">
               <span>Iniciar cotação</span>
             </button>
             <p className="welcome-reassurance">Você pode revisar tudo antes de enviar.</p>
           </section>
+          <div className="welcome-preview">
+            <img src={BRAND.heroImage} alt="Participantes chegando a um evento corporativo" fetchPriority="high" width="1672" height="941" />
+          </div>
 
         </main>
 
