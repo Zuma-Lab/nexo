@@ -182,3 +182,36 @@ body:has(#login) > header, .briefing-create-shell > header {
   .workspace-toolbar .client-filters { gap: 4px; }
   .client-priority { padding: 14px; }
 }
+
+/* Client workspace: separate the request register from the action inbox. */
+.workspace-inbox { display: none; }
+.is-client .workspace-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, .46fr);
+  align-items: start;
+  gap: clamp(18px, 3vw, 34px);
+}
+.is-client .workspace-inbox {
+  display: block;
+  background: #18332c;
+  color: #fff;
+  border-radius: 10px;
+  padding: 22px;
+}
+.is-client .workspace-inbox .client-priority { margin: 0; padding: 0; background: transparent; border: 0; }
+.workspace-inbox .priority-quote { display: flex; flex-direction: column; align-items: start; background: transparent; border-color: #537268; }
+.workspace-inbox :is(.priority-quote p, #client-inbox-empty) { color: #dbe8df; }
+.workspace-inbox .priority-quote :is(button,a) { padding-inline: 14px; color: #18332c; }
+.workspace-inbox .priority-quote :is(button,a):focus-visible { outline-color: #fff; }
+.is-client #cards { gap: 0; background: #fff; border: 1px solid var(--nexo-line); border-radius: 10px; }
+.is-client #cards:empty { display: none; }
+.is-client #cards .client-quote-row { border: 0; border-radius: 0; background: transparent; grid-template-columns: minmax(0, 1fr) minmax(130px, .8fr); padding: 16px; gap: 8px 16px; }
+.is-client #cards .client-quote-row + .client-quote-row { border-top: 1px solid var(--nexo-line); }
+.is-client #cards .client-quote-actions { grid-column: 1/-1; display: flex; flex-wrap: wrap; }
+@media (max-width: 1100px) {
+  .is-client .workspace-columns { grid-template-columns: minmax(0, 1fr); }
+  .is-client .workspace-inbox { grid-row: 1; }
+}
+@media (max-width: 520px) {
+  .is-client #cards .client-quote-row { grid-template-columns: minmax(0, 1fr); }
+}

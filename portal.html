@@ -27,8 +27,8 @@
   <div><span class="eyebrow" id="workspace-role"></span><h1 id="greeting">Minhas cotações</h1><p id="workspace-lead" class="workspace-lead"></p></div>
   <div id="client-hero" class="hidden"><a class="primary" href="/formulario.html?novo=1">Nova cotação</a></div>
 </div>
-<section id="client-priority" class="client-priority" aria-labelledby="client-priority-title" hidden><h2 id="client-priority-title">Precisa de você</h2><div id="client-priority-items"></div></section>
-<div class="workspace-toolbar">
+
+<div class="workspace-columns"><div class="workspace-primary"><div class="workspace-toolbar">
 <nav id="client-filters" class="consultant-nav client-filters" aria-label="Filtrar minhas cotações" hidden></nav>
   <nav id="consultant-nav" class="consultant-nav" aria-label="Central do consultor" hidden>
     <button id="view-queue" type="button" aria-controls="queue-panel" aria-pressed="true">Pendências</button>
@@ -65,5 +65,8 @@
   <h2 id="list-heading">Minhas cotações</h2>
   <p id="empty"></p><div class="cards" id="cards"></div>
 </section>
+</div>
+<aside class="workspace-inbox" aria-label="Pendências da conta"><section id="client-priority" class="client-priority" aria-labelledby="client-priority-title" hidden><h2 id="client-priority-title">Precisa de você</h2><div id="client-priority-items"></div></section><p id="client-inbox-empty" hidden>Você está em dia. Novas pendências aparecem aqui.</p></aside>
+</div>
 </main><div class="footer"><span data-brand-text="name">Projeto Eventos</span> · Protótipo funcional local</div>
 <script defer src="/assets/workflow/portal-workflow.js"></script><script defer src="/portal.js"></script></body></html>

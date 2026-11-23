@@ -463,7 +463,8 @@
   const section=qs('#client-priority'), items=qs('#client-priority-items');
   items.replaceChildren();
   const pending=currentUser?.role==='client'?cachedQuotes.filter(quote=>quote.progress?.actionable):[];
-  section.hidden=!pending.length;
+  section.hidden=currentUser?.role!=='client';
+  qs('#client-inbox-empty').hidden=!!pending.length;
   for(const quote of pending){
     const row=el('article','priority-quote');
     const copy=el('div');
